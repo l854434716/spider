@@ -5,6 +5,7 @@ import manke.spider.model.BibiIndexGlobalSeason;
 import manke.spider.pipeline.BibiAnimeDetailPipeline;
 import manke.spider.pipeline.BibiAnimeIndexPipeline;
 import manke.spider.pipeline.BibiAnimeRecommendPipeline;
+import manke.spider.pipeline.BibiAnimeSessionInfoPipeline;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +130,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
             try {
                 //数据转换出错或者数据来源url 是其他页面
                 bibiSeasoninfoJsonStr=page.getJson().jsonPath("$.result").get();
-                page.putField(BibiAnimeIndexPipeline.bibiIndexGlobalSeasonJsonStrList,bibiSeasoninfoJsonStr);
+                page.putField(BibiAnimeSessionInfoPipeline.bibiSeasoninfoJsonStr,bibiSeasoninfoJsonStr);
             }catch (Exception e){
                 logger.error("can not  process url {} json data",page.getRequest().getUrl());
             }
@@ -165,7 +166,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
     public static void main(String[] args) {
         Spider.create(new BibiAnimeIndexPageProcessor()).addUrl("http://bangumi.bilibili.com/web_api/season/index_global?page=0")
                 .addPipeline(new BibiAnimeIndexPipeline())
-                .addPipeline(new BibiAnimeDetailPipeline())
+                .addPipeline(new BibiAnimeSessionInfoPipeline())
                 .thread(50).run();
     }
 }
