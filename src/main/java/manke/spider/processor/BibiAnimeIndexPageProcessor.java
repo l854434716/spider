@@ -13,6 +13,7 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
+import us.codecraft.webmagic.proxy.ProxyPool;
 import us.codecraft.webmagic.selector.Html;
 
 import java.util.ArrayList;
@@ -29,8 +30,9 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
     Logger  logger= LoggerFactory.getLogger(BibiAnimeIndexPageProcessor.class);
 
     private Site site = Site.me()
+            //.enableHttpProxyPool()
             .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-            .setRetryTimes(3).setSleepTime(1000).setTimeOut(1000000000).setCharset("UTF-8");
+            .setRetryTimes(3).setSleepTime(10000).setTimeOut(10000).setCharset("UTF-8");
 
     public void process(Page page) {
 
@@ -160,6 +162,9 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
 
 
     public Site getSite() {
+        List<String[]> poolHosts = new ArrayList<String[]>();
+        poolHosts.add(new String[]{"username","password","178.140.216.229","8080"});
+      //  site.setHttpProxyPool(poolHosts,false);
         return site;
     }
 
@@ -169,6 +174,6 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
                 .addUrl("http://bangumi.bilibili.com/web_api/season/index_cn?page=0")
                 .addPipeline(new BibiAnimeIndexPipeline())
                 .addPipeline(new BibiAnimeSessionInfoPipeline())
-                .thread(50).run();
+                .thread(2).run();
     }
 }
