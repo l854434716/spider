@@ -10,12 +10,6 @@ import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Created by luozhi on 2017/5/25.
  *
@@ -28,7 +22,6 @@ public class BibiAnimeSessionInfoPipeline extends AbstractMongodbPipeline implem
     //番剧sessionInfo json存放到 resultItems  中的key 名称
     public  final static  String  bibiSessionInfoJsonStr="bibiSessionInfoJsonStr";
 
-    ObjectMapper mapper = new ObjectMapper();
     public void process(ResultItems resultItems, Task task) {
 
         if (resultItems.isSkip())
@@ -38,7 +31,21 @@ public class BibiAnimeSessionInfoPipeline extends AbstractMongodbPipeline implem
 
         if (bibiSessionInfoJsonStrData!=null){
 
-            System.out.println(bibiSessionInfoJsonStrData);
+            try{
+                MongoDatabase mongoDatabase = mongoClient.getDatabase("spider");
+                MongoCollection<Document> collection=mongoDatabase.getCollection("bibi_sessioninfo_animes");
+
+                Document document=Document.parse(bibiSessionInfoJsonStrData);
+                document.remove("seasons");
+                document.remove("user_season");
+                logger.info("commit {} to queue",document.toJson());
+                collection.insertOne(document);
+                logger.info("commit data success");
+            }catch (Exception e){
+                logger.error("store data error ",e);
+
+            }
+
 
         }
 

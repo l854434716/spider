@@ -30,7 +30,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
 
     private Site site = Site.me()
             .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-            .setRetryTimes(3).setSleepTime(1000).setTimeOut(10000).setCharset("UTF-8");
+            .setRetryTimes(3).setSleepTime(1000).setTimeOut(1000000000).setCharset("UTF-8");
 
     public void process(Page page) {
 
@@ -129,9 +129,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
 
             try {
                 //数据转换出错或者数据来源url 是其他页面
-                bibiSeasoninfoJsonStr=null;
-                        System.out.println(page.getJson().regex("result\":(.*)}\\)").toString());
-                        //seasonListCallback\((.*)\)
+                bibiSeasoninfoJsonStr=page.getJson().regex("result\":(.*)}\\)").toString();
                 page.putField(BibiAnimeSessionInfoPipeline.bibiSessionInfoJsonStr,bibiSeasoninfoJsonStr);
             }catch (Exception e){
                 logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
@@ -153,7 +151,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
         List<String>  urls=new ArrayList<String>(sessionIds.size());
         for (String sessionId:sessionIds){
 
-            url=StringUtils.join("https://bangumi.bilibili.com/jsonp/seasoninfo/",sessionId,".ver?callback=seasonListCallback");
+            url=StringUtils.join("http://bangumi.bilibili.com/jsonp/seasoninfo/",sessionId,".ver?callback=seasonListCallback");
             urls.add(url);
         }
 
@@ -167,10 +165,10 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
 
     public static void main(String[] args) {
         Spider.create(new BibiAnimeIndexPageProcessor())
-                .addUrl("http://bangumi.bilibili.com/web_api/season/index_global?page=1&page_size=1")
-               // .addUrl("https://bangumi.bilibili.com/web_api/season/index_cn?page=1&page_size=1")
+                .addUrl("http://bangumi.bilibili.com/web_api/season/index_global?page=0")
+                .addUrl("http://bangumi.bilibili.com/web_api/season/index_cn?page=0")
                 .addPipeline(new BibiAnimeIndexPipeline())
                 .addPipeline(new BibiAnimeSessionInfoPipeline())
-                .thread(5).run();
+                .thread(50).run();
     }
 }

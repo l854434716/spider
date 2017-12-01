@@ -19,7 +19,7 @@ public abstract  class AbstractMongodbPipeline implements Pipeline{
 
         try{
             // 连接到 mongodb 服务
-             mongoClient = new MongoClient( "localhost" , 27017 );
+             mongoClient = new MongoClient( "192.168.231.236" , 27017 );
 
              Runtime.getRuntime().addShutdownHook(new Thread(){
 
