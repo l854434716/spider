@@ -5,6 +5,7 @@ import manke.spider.model.BibiIndexGlobalSeason;
 import manke.spider.pipeline.BibiAnimeDetailPipeline;
 import manke.spider.pipeline.BibiAnimeIndexPipeline;
 import manke.spider.pipeline.BibiAnimeRecommendPipeline;
+import manke.spider.pipeline.BibiAnimeSessionInfoPipeline;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
 
     private Site site = Site.me()
             .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-            .setRetryTimes(3).setSleepTime(1000).setTimeOut(10000);
+            .setRetryTimes(3).setSleepTime(1000).setTimeOut(10000).setCharset("UTF-8");
 
     public void process(Page page) {
 
@@ -48,7 +49,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
                 if (animeDetailUrls!=null)
                    page.addTargetRequests(animeDetailUrls);
             }catch (Exception e){
-                logger.error("can not  process url {} json data",page.getRequest().getUrl());
+                logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
             }
 
 
@@ -70,7 +71,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
                 if (animeDetailUrls!=null)
                     page.addTargetRequests(animeDetailUrls);
             }catch (Exception e){
-                logger.error("can not  process url {} json data",page.getRequest().getUrl());
+                logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
             }
 
 
@@ -128,10 +129,12 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
 
             try {
                 //数据转换出错或者数据来源url 是其他页面
-                bibiSeasoninfoJsonStr=page.getJson().jsonPath("$.result").get();
-                page.putField(BibiAnimeIndexPipeline.bibiIndexGlobalSeasonJsonStrList,bibiSeasoninfoJsonStr);
+                bibiSeasoninfoJsonStr=null;
+                        System.out.println(page.getJson().regex("result\":(.*)}\\)").toString());
+                        //seasonListCallback\((.*)\)
+                page.putField(BibiAnimeSessionInfoPipeline.bibiSessionInfoJsonStr,bibiSeasoninfoJsonStr);
             }catch (Exception e){
-                logger.error("can not  process url {} json data",page.getRequest().getUrl());
+                logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
             }
 
 
@@ -163,9 +166,11 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
     }
 
     public static void main(String[] args) {
-        Spider.create(new BibiAnimeIndexPageProcessor()).addUrl("http://bangumi.bilibili.com/web_api/season/index_global?page=0")
+        Spider.create(new BibiAnimeIndexPageProcessor())
+                .addUrl("http://bangumi.bilibili.com/web_api/season/index_global?page=1&page_size=1")
+               // .addUrl("https://bangumi.bilibili.com/web_api/season/index_cn?page=1&page_size=1")
                 .addPipeline(new BibiAnimeIndexPipeline())
-                .addPipeline(new BibiAnimeDetailPipeline())
-                .thread(50).run();
+                .addPipeline(new BibiAnimeSessionInfoPipeline())
+                .thread(5).run();
     }
 }
