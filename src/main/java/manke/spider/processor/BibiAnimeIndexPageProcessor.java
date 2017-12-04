@@ -21,10 +21,10 @@ import java.util.List;
 
 /**
  * Created by luozhi on 2017/5/21.
- *
- * 从 3种url 获取 信息  1.http://bangumi.bilibili.com/web_api/season/index_global?page=0
- *                   2.https://bangumi.bilibili.com/web_api/season/index_cn?page=0
- *                   3.https://bangumi.bilibili.com/jsonp/seasoninfo/5050.ver?callback=seasonListCallback
+ *  抓取全量的番剧数据
+ * 从 3种url 获取 信息  1.http://bangumi.bilibili.com/web_api/season/index_global?page=0   国外番剧集
+ *                   2.https://bangumi.bilibili.com/web_api/season/index_cn?page=0      国内番剧集
+ *                   3.https://bangumi.bilibili.com/jsonp/seasoninfo/5050.ver?callback=seasonListCallback  番剧详细信息
  */
 public class BibiAnimeIndexPageProcessor implements PageProcessor {
     Logger  logger= LoggerFactory.getLogger(BibiAnimeIndexPageProcessor.class);
@@ -32,7 +32,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
     private Site site = Site.me()
             //.enableHttpProxyPool()
             .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-            .setRetryTimes(3).setSleepTime(10000).setTimeOut(10000).setCharset("UTF-8");
+            .setRetryTimes(3).setSleepTime(3000).setTimeOut(10000).setCharset("UTF-8");
 
     public void process(Page page) {
 
@@ -75,51 +75,6 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
             }catch (Exception e){
                 logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
             }
-
-
-        }
-
-
-
-        //处理antime 详情页数据 http://bangumi.bilibili.com/anime/5056 详情页格式
-        if (StringUtils.contains(page.getRequest().getUrl(),"anime")){
-
-            Html htmlContent=page.getHtml();
-            //bangumi-preview=//i0.hdslb.com/bfs/bangumi/8d594ce60af3068a182d9d498f317de7ff51668e.jpg_225x300.jpg
-            String  bangumi_preview=htmlContent.xpath("//div[@class='bangumi-preview']/img/@src").get();
-            page.putField("bangumi_preview",bangumi_preview);
-            //info-title=少年阿贝 GO!GO!小芝麻 第二季
-            String  info_tile=htmlContent.xpath("//div[@class='bangumi-info-r']/div[@class='b-head']/h1/text()").get();
-            page.putField("info-title",info_tile);
-
-            List<String> info_style_items=htmlContent.xpath("//span[@class='info-style-item']/text()").all();
-            page.putField("info-style-items",info_style_items);
-
-            String playCount=htmlContent.xpath("//span[@class='info-count-item info-count-item-play']/em/text()").get();
-            String fans=htmlContent.xpath("//span[@class='info-count-item info-count-item-fans']/em/text()").get();
-            String reviewCount=htmlContent.xpath("//span[@class='info-count-item info-count-item-review']/em/text()").get();
-
-            page.putField("playCount",playCount);
-            page.putField("fans",fans);
-            page.putField("reviewCount",reviewCount);
-
-            //开播时间
-            String info_update_time=htmlContent.xpath("//div[@class='info-row info-update']/em/span[1]/text()").get();
-            //是否完结
-            String info_update_statue=htmlContent.xpath("//div[@class='info-row info-update']/em/span[2]/text()").get();
-
-
-            page.putField("info_update_time",info_update_time);
-            page.putField("info_update_statue",info_update_statue);
-
-
-            List<String> info_cvList=htmlContent.xpath("//div[@class='info-row info-cv']/em/span/text()").all();
-
-            page.putField("info_cvList",info_cvList);
-
-            String  info_desc=htmlContent.xpath("//div[@class='info-desc']/text()").get();
-
-            page.putField("info_desc",info_desc);
 
 
         }
@@ -172,8 +127,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
         Spider.create(new BibiAnimeIndexPageProcessor())
                 .addUrl("http://bangumi.bilibili.com/web_api/season/index_global?page=0")
                 .addUrl("http://bangumi.bilibili.com/web_api/season/index_cn?page=0")
-                .addPipeline(new BibiAnimeIndexPipeline())
                 .addPipeline(new BibiAnimeSessionInfoPipeline())
-                .thread(2).run();
+                .thread(5).run();
     }
 }

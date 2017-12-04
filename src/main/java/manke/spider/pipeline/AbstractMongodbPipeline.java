@@ -1,7 +1,6 @@
 package manke.spider.pipeline;
 
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.pipeline.Pipeline;
@@ -19,7 +18,7 @@ public abstract  class AbstractMongodbPipeline implements Pipeline{
 
         try{
             // 连接到 mongodb 服务
-             mongoClient = new MongoClient( "192.168.231.236" , 27017 );
+             mongoClient = new MongoClient( "localhost" , 27017 );
 
              Runtime.getRuntime().addShutdownHook(new Thread(){
 
