@@ -57,16 +57,20 @@ public class BibiAnimeTimelinePageProcessor implements PageProcessor {
 
         if(StringUtils.contains(page.getRequest().getUrl(),"timeline_cn")){
 
-            List<String> bibiIndexCnSeasonJsonStrList=null;
-
+            //最新的番剧更新列表（取接口返回的最远的那天的数据）
+            List<String> bibiTimelineLastDaySesssionArrayJsonStr=null;
+            String date_ts=null;
+            String day_of_week=null;
             try {
                 //数据转换出错或者数据来源url 是其他页面
-                bibiIndexCnSeasonJsonStrList=page.getJson().jsonPath("$.result.list[*]").all();
-                page.putField(BibiAnimeIndexPipeline.bibiIndexGlobalSeasonJsonStrList,bibiIndexCnSeasonJsonStrList);
-                List<String>  animeDetailUrls=page.getJson().jsonPath("$.result.list[*].url").all();
-                List<String>  sessionIds=page.getJson().jsonPath("$.result.list[*].season_id").all();
-                if (animeDetailUrls!=null)
-                    page.addTargetRequests(animeDetailUrls);
+                bibiTimelineLastDaySesssionArrayJsonStr=page.getJson().jsonPath("$.result[(@.length-1)].seasons[*]").all();
+                date_ts= page.getJson().jsonPath("$.result[(@.length-1)].date_ts").get();
+                day_of_week=page.getJson().jsonPath("$.result[(@.length-1)].day_of_week").get();
+
+                page.putField(BibiAnimeTimelinePipeline.bibiTimelineLastDaySesssionArrayJsonStr,bibiTimelineLastDaySesssionArrayJsonStr);
+                page.putField(BibiAnimeTimelinePipeline.date_ts,date_ts);
+                page.putField(BibiAnimeTimelinePipeline.day_of_week,day_of_week);
+
             }catch (Exception e){
                 logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
             }

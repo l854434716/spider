@@ -5,6 +5,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.ResultItems;
@@ -52,7 +53,7 @@ public class BibiAnimeTimelinePipeline extends AbstractMongodbPipeline implement
                     document.put(date_ts,resultItems.get(date_ts));
                     document.put(day_of_week,resultItems.get(day_of_week));
                     logger.info("commit {} to queue",document.toJson());
-                    collection.updateOne(Filters.eq("_id",document.get(season_id)),document,updateOptions);
+                    collection.replaceOne(Filters.eq("_id",document.get(season_id)),document,updateOptions);
                 }
 
                 logger.info("commit data success");
