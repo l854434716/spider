@@ -1,4 +1,4 @@
-package manke.spider.pipeline;
+package manke.spider.pipeline.bibi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

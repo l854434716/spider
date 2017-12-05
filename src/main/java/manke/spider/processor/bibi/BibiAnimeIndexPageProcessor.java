@@ -1,11 +1,7 @@
-package manke.spider.processor;
+package manke.spider.processor.bibi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import manke.spider.model.BibiIndexGlobalSeason;
-import manke.spider.pipeline.BibiAnimeDetailPipeline;
-import manke.spider.pipeline.BibiAnimeIndexPipeline;
-import manke.spider.pipeline.BibiAnimeRecommendPipeline;
-import manke.spider.pipeline.BibiAnimeSessionInfoPipeline;
+import manke.spider.pipeline.bibi.BibiAnimeIndexPipeline;
+import manke.spider.pipeline.bibi.BibiAnimeSessionInfoPipeline;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +9,6 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
-import us.codecraft.webmagic.proxy.ProxyPool;
-import us.codecraft.webmagic.selector.Html;
 
 import java.util.ArrayList;
 import java.util.List;

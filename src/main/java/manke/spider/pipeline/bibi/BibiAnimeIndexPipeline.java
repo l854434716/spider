@@ -1,11 +1,8 @@
-package manke.spider.pipeline;
+package manke.spider.pipeline.bibi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.util.JSON;
-import manke.spider.model.BibiIndexGlobalSeason;
+import manke.spider.pipeline.AbstractMongodbPipeline;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +10,8 @@ import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by luozhi on 2017/5/22.

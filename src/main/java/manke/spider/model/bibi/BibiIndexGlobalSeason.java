@@ -1,4 +1,4 @@
-package manke.spider.model;
+package manke.spider.model.bibi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;

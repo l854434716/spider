@@ -1,4 +1,4 @@
-package manke.spider.model;
+package manke.spider.model.bibi;
 
 /**
  * Created by LENOVO on 2017/12/5.

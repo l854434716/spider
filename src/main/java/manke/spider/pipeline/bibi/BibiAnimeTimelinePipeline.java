@@ -1,19 +1,18 @@
-package manke.spider.pipeline;
+package manke.spider.pipeline.bibi;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
-import manke.spider.model.BibiConstant;
+import manke.spider.model.bibi.BibiConstant;
+import manke.spider.pipeline.AbstractMongodbPipeline;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

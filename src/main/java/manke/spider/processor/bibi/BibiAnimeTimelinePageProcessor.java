@@ -1,9 +1,7 @@
-package manke.spider.processor;
+package manke.spider.processor.bibi;
 
-import manke.spider.model.BibiConstant;
-import manke.spider.pipeline.BibiAnimeIndexPipeline;
-import manke.spider.pipeline.BibiAnimeSessionInfoPipeline;
-import manke.spider.pipeline.BibiAnimeTimelinePipeline;
+import manke.spider.model.bibi.BibiConstant;
+import manke.spider.pipeline.bibi.BibiAnimeTimelinePipeline;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

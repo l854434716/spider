@@ -1,11 +1,11 @@
-package manke.spider.pipeline;
+package manke.spider.pipeline.bibi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
-import manke.spider.model.BibiConstant;
+import manke.spider.model.bibi.BibiConstant;
+import manke.spider.pipeline.AbstractMongodbPipeline;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
