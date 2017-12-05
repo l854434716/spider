@@ -3,6 +3,9 @@ package manke.spider.pipeline;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
+import manke.spider.model.BibiConstant;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +21,8 @@ import us.codecraft.webmagic.pipeline.Pipeline;
 public class BibiAnimeSessionInfoPipeline extends AbstractMongodbPipeline implements Pipeline {
 
     private  static Logger logger= LoggerFactory.getLogger(BibiAnimeSessionInfoPipeline.class);
+
+    private UpdateOptions updateOptions=new UpdateOptions().upsert(true);
 
     //番剧sessionInfo json存放到 resultItems  中的key 名称
     public  final static  String  bibiSessionInfoJsonStr="bibiSessionInfoJsonStr";
@@ -36,10 +41,11 @@ public class BibiAnimeSessionInfoPipeline extends AbstractMongodbPipeline implem
                 MongoCollection<Document> collection=mongoDatabase.getCollection("bibi_sessioninfo_animes");
 
                 Document document=Document.parse(bibiSessionInfoJsonStrData);
-                document.remove("seasons");
-                document.remove("user_season");
+                document.put("_id",document.get(BibiConstant.SEASON_ID));
+                document.remove(BibiConstant.SEASONS);
+                document.remove(BibiConstant.USER_SEASON);
                 logger.info("commit {} to queue",document.toJson());
-                collection.insertOne(document);
+                collection.replaceOne(Filters.eq("_id",document.get(BibiConstant.SEASON_ID)),document,updateOptions);
                 logger.info("commit data success");
             }catch (Exception e){
                 logger.error("store data error ",e);

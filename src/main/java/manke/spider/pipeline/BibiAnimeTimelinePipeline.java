@@ -4,6 +4,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
+import manke.spider.model.BibiConstant;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -25,13 +26,6 @@ public class BibiAnimeTimelinePipeline extends AbstractMongodbPipeline implement
 
     public final static  String  bibiTimelineLastDaySesssionArrayJsonStr="bibiTimelineLastDaySesssionArrayJsonStr";
 
-    public  final  static  String  date_ts="date_ts";
-
-    public  final  static  String  day_of_week="day_of_week";
-
-    public  final  static  String  season_id="season_id";
-
-
     private  UpdateOptions updateOptions=new UpdateOptions().upsert(true);
 
     public void process(ResultItems resultItems, Task task) {
@@ -49,11 +43,11 @@ public class BibiAnimeTimelinePipeline extends AbstractMongodbPipeline implement
                 Document document=null;
                 for (String  json:sessions){
                     document = Document.parse(json);
-                    document.put("_id",document.get(season_id));  //指定_id 为 bibi sessionid
-                    document.put(date_ts,resultItems.get(date_ts));
-                    document.put(day_of_week,resultItems.get(day_of_week));
+                    document.put("_id",document.get(BibiConstant.SEASON_ID));  //指定_id 为 bibi sessionid
+                    document.put(BibiConstant.DATE_TS,resultItems.get(BibiConstant.DATE_TS));
+                    document.put(BibiConstant.DAY_OF_WEEK,resultItems.get(BibiConstant.DAY_OF_WEEK));
                     logger.info("commit {} to queue",document.toJson());
-                    collection.replaceOne(Filters.eq("_id",document.get(season_id)),document,updateOptions);
+                    collection.replaceOne(Filters.eq("_id",document.get(BibiConstant.SEASON_ID)),document,updateOptions);
                 }
 
                 logger.info("commit data success");

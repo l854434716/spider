@@ -32,7 +32,7 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
     private Site site = Site.me()
             //.enableHttpProxyPool()
             .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-            .setRetryTimes(3).setSleepTime(3000).setTimeOut(10000).setCharset("UTF-8");
+            .setRetryTimes(3).setSleepTime(1000).setTimeOut(10000).setCharset("UTF-8");
 
     public void process(Page page) {
 
@@ -45,9 +45,8 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
                 //数据转换出错或者数据来源url 是其他页面
                 bibiIndexGlobalSeasonJsonStrList=page.getJson().jsonPath("$.result.list[*]").all();
                 page.putField(BibiAnimeIndexPipeline.bibiIndexGlobalSeasonJsonStrList,bibiIndexGlobalSeasonJsonStrList);
-                List<String>  animeDetailUrls=page.getJson().jsonPath("$.result.list[*].url").all();
                 List<String>  sessionIds=page.getJson().jsonPath("$.result.list[*].season_id").all();
-                animeDetailUrls=convertSessionIds2Urls(sessionIds);
+                List<String>  animeDetailUrls=convertSessionIds2Urls(sessionIds);
                 if (animeDetailUrls!=null)
                    page.addTargetRequests(animeDetailUrls);
             }catch (Exception e){
@@ -67,9 +66,8 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
                 //数据转换出错或者数据来源url 是其他页面
                 bibiIndexCnSeasonJsonStrList=page.getJson().jsonPath("$.result.list[*]").all();
                 page.putField(BibiAnimeIndexPipeline.bibiIndexGlobalSeasonJsonStrList,bibiIndexCnSeasonJsonStrList);
-                List<String>  animeDetailUrls=page.getJson().jsonPath("$.result.list[*].url").all();
                 List<String>  sessionIds=page.getJson().jsonPath("$.result.list[*].season_id").all();
-                animeDetailUrls=convertSessionIds2Urls(sessionIds);
+                List<String> animeDetailUrls=convertSessionIds2Urls(sessionIds);
                 if (animeDetailUrls!=null)
                     page.addTargetRequests(animeDetailUrls);
             }catch (Exception e){
@@ -128,6 +126,6 @@ public class BibiAnimeIndexPageProcessor implements PageProcessor {
                 .addUrl("http://bangumi.bilibili.com/web_api/season/index_global?page=0")
                 .addUrl("http://bangumi.bilibili.com/web_api/season/index_cn?page=0")
                 .addPipeline(new BibiAnimeSessionInfoPipeline())
-                .thread(5).run();
+                .thread(10).run();
     }
 }

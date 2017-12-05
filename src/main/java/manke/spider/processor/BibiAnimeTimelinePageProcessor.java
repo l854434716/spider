@@ -1,5 +1,6 @@
 package manke.spider.processor;
 
+import manke.spider.model.BibiConstant;
 import manke.spider.pipeline.BibiAnimeIndexPipeline;
 import manke.spider.pipeline.BibiAnimeSessionInfoPipeline;
 import manke.spider.pipeline.BibiAnimeTimelinePipeline;
@@ -44,8 +45,8 @@ public class BibiAnimeTimelinePageProcessor implements PageProcessor {
                 day_of_week=page.getJson().jsonPath("$.result[(@.length-1)].day_of_week").get();
 
                 page.putField(BibiAnimeTimelinePipeline.bibiTimelineLastDaySesssionArrayJsonStr,bibiTimelineLastDaySesssionArrayJsonStr);
-                page.putField(BibiAnimeTimelinePipeline.date_ts,date_ts);
-                page.putField(BibiAnimeTimelinePipeline.day_of_week,day_of_week);
+                page.putField(BibiConstant.DATE_TS,date_ts);
+                page.putField(BibiConstant.DAY_OF_WEEK,day_of_week);
 
             }catch (Exception e){
                 logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
@@ -66,10 +67,9 @@ public class BibiAnimeTimelinePageProcessor implements PageProcessor {
                 bibiTimelineLastDaySesssionArrayJsonStr=page.getJson().jsonPath("$.result[(@.length-1)].seasons[*]").all();
                 date_ts= page.getJson().jsonPath("$.result[(@.length-1)].date_ts").get();
                 day_of_week=page.getJson().jsonPath("$.result[(@.length-1)].day_of_week").get();
-
                 page.putField(BibiAnimeTimelinePipeline.bibiTimelineLastDaySesssionArrayJsonStr,bibiTimelineLastDaySesssionArrayJsonStr);
-                page.putField(BibiAnimeTimelinePipeline.date_ts,date_ts);
-                page.putField(BibiAnimeTimelinePipeline.day_of_week,day_of_week);
+                page.putField(BibiConstant.DATE_TS,date_ts);
+                page.putField(BibiConstant.DAY_OF_WEEK,day_of_week);
 
             }catch (Exception e){
                 logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
