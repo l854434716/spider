@@ -33,4 +33,11 @@ public class QqConstant {
     public  final  static  String  COMMENT="comment";
 
 
+    //番剧名称
+    public  final  static  String  TITLE="title";
+
+    //番剧更新情况
+    public  final  static  String  UPDATE_INFO="update_info";
+
+
 }

@@ -3,7 +3,6 @@ package manke.spider.processor.qq;
 import manke.spider.model.qq.QqConstant;
 import manke.spider.pipeline.bibi.BibiAnimeIndexPipeline;
 import manke.spider.pipeline.bibi.BibiAnimeSessionInfoPipeline;
-import manke.spider.pipeline.qq.QqAnimeIndexPipeline;
 import manke.spider.pipeline.qq.QqAnimeSessionInfoPipeline;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
