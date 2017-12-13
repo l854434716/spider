@@ -4,7 +4,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
-import manke.spider.model.qq.QqConstant;
+import manke.spider.model.youku.YoukuConstant;
 import manke.spider.pipeline.AbstractMongodbPipeline;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -26,10 +26,8 @@ public class YoukuAnimeSessionInfoPipeline extends AbstractMongodbPipeline imple
 
     private UpdateOptions updateOptions=new UpdateOptions().upsert(true);
 
-    //番剧sessionInfo json存放到 resultItems  中的key 名称
-    public  final static  String  qqSessionInfoJsonStr="qqSessionInfoJsonStr";
 
-    // 番剧唯一标识
+    // 番剧详细属性kv 放入ResultItems 标识key名称
     public  final  static  String  season_info_kv="season_info_kv";
 
     public void process(ResultItems resultItems, Task task) {
@@ -37,21 +35,18 @@ public class YoukuAnimeSessionInfoPipeline extends AbstractMongodbPipeline imple
         if (resultItems.isSkip())
             return;
 
-        String  qqSessionInfoJsonStrData=resultItems.get(qqSessionInfoJsonStr);
         Map<String,String>   season_info_kv=resultItems.get(YoukuAnimeSessionInfoPipeline.season_info_kv);
-        if (qqSessionInfoJsonStrData!=null){
+        if (season_info_kv!=null){
 
             try{
                 MongoDatabase mongoDatabase = mongoClient.getDatabase("spider");
-                MongoCollection<Document> collection=mongoDatabase.getCollection("qq_sessioninfo_animes");
+                MongoCollection<Document> collection=mongoDatabase.getCollection("youku_sessioninfo_animes");
 
-                Document document=Document.parse(qqSessionInfoJsonStrData);
-                document.put("_id",season_info_kv.get(QqConstant.SEASON_ID));
+                Document document=new Document();
+                document.put("_id",season_info_kv.get(YoukuConstant.SEASON_ID));
                 document.putAll(season_info_kv);
-                document.remove(QqConstant.SEASON_ID);
-                document.remove(QqConstant.COMMENT);
                 logger.info("commit {} to queue",document.toJson());
-                collection.replaceOne(Filters.eq("_id",season_info_kv.get(QqConstant.SEASON_ID)),document,updateOptions);
+                collection.replaceOne(Filters.eq("_id",season_info_kv.get(YoukuConstant.SEASON_ID)),document,updateOptions);
                 logger.info("commit data success");
             }catch (Exception e){
                 logger.error("store data error ",e);

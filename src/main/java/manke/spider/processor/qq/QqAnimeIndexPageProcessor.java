@@ -83,7 +83,7 @@ public class QqAnimeIndexPageProcessor implements PageProcessor {
                         season_info_kv.put(QqConstant.WEBPLAYURL,li.xpath("a/@href").get());
                         season_info_kv.put(QqConstant.SEASON_ID,li.xpath("a/@data-float").get());
                         season_info_kv.put(QqConstant.COVER,li.xpath("a/img/@src").get());
-                        season_info_kv.put(QqConstant.FIGURE_INFO,li.xpath("a/div/span/text()").get());
+                        season_info_kv.put(QqConstant.UPDATE_INFO,li.xpath("a/div/span/text()").get());
                         season_info_kv.put(QqConstant.MARK_V,li.xpath("a/i").get()==null?"0":"1");
                         season_info_kv.put(QqConstant.SCORE,li.xpath("//em[@class='score_l']/text()").get()+li.xpath("//em[@class='score_s']/text()").get());
                         season_info_kv.put(QqConstant.PLAY_COUNT, li.xpath("//span[@class='num']/text()").get());

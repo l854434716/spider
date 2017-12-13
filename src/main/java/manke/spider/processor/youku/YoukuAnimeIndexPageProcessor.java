@@ -1,5 +1,6 @@
 package manke.spider.processor.youku;
 
+import manke.spider.model.AnimeKeyNameConstant;
 import manke.spider.model.youku.YoukuConstant;
 import manke.spider.pipeline.youku.YoukuAnimeSessionInfoPipeline;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import  static  manke.spider.model.youku.YoukuConstant.*;
 /**
  * Created by luozhi on 2017/5/21.
  *  抓取全量的番剧数据
@@ -85,7 +88,7 @@ public class YoukuAnimeIndexPageProcessor implements PageProcessor {
     private  void   doDetailPageProcessor(Page  page){
 
         //番剧详情html div 模块
-      Selectable detail_div_selectable= page.getHtml().xpath("//div[@class='mod mod-new']/div[@class='mod fix']");
+        Selectable detail_div_selectable= page.getHtml().xpath("//div[@class='mod mod-new']/div[@class='mod fix']");
 
         //番剧海报信息
         Selectable  detail_post_div_selectable=detail_div_selectable.xpath("div[@class='p-post']");
@@ -94,35 +97,118 @@ public class YoukuAnimeIndexPageProcessor implements PageProcessor {
 
         Map<String,String> sesaon_info_kv=new HashMap<>();
 
-        sesaon_info_kv.put(YoukuConstant.TITLE,detail_post_div_selectable.xpath("//div[@class='p-thumb']/a/@title").get());
-        sesaon_info_kv.put("",detail_post_div_selectable.xpath("//div[@class='p-thumb']/a/@href").get());
-        sesaon_info_kv.put("",detail_post_div_selectable.xpath("//div[@class='p-thumb']/img/@src").get());
-        sesaon_info_kv.put("",detail_post_div_selectable.xpath("//span[@class='ico-lt']/text()").get());
-        sesaon_info_kv.put("",detail_post_div_selectable.xpath("//span[@class='ico-SD']/text()").get());
-        sesaon_info_kv.put("",detail_post_div_selectable.xpath("//span[@class='vip-free']/text()").get());
+        sesaon_info_kv.put(SEASON_ID,page.getUrl().regex(".*id_(.*)\\.html.*").get());
+        sesaon_info_kv.put(TITLE,detail_post_div_selectable.xpath("//div[@class='p-thumb']/a/@title").get());
+        sesaon_info_kv.put(WEBPLAYURL,detail_post_div_selectable.xpath("//div[@class='p-thumb']/a/@href").get());
+        sesaon_info_kv.put(COVER,detail_post_div_selectable.xpath("//div[@class='p-thumb']/img/@src").get());
+        sesaon_info_kv.put(EXCLUSIVE,detail_post_div_selectable.xpath("//span[@class='ico-lt']/text()").get());
+        sesaon_info_kv.put(ARTICULATION,detail_post_div_selectable.xpath("//span[@class='ico-SD']/text()").get());
+        sesaon_info_kv.put(MARK_V,detail_post_div_selectable.xpath("//span[@class='vip-free']/text()").get());
 
         //番剧文字信息列
         List<Selectable> detail_base_li_selectables=detail_base_div_selectable.xpath("ul/li").nodes();
 
         Selectable _li=null;
-        if(detail_base_li_selectables.size()==14){
+        String  _s=detail_base_li_selectables.get(3).xpath("span/label/@data-spm-anchor-id").get();
+        if(StringUtils.isEmpty(detail_base_li_selectables.get(4).xpath("span/label/text()").get())){
             //番剧信息列表不带番剧上映时间
             _li=detail_base_li_selectables.get(0);//p-title
-            _li.xpath("//span[@class='edition']/text()").get();
+            sesaon_info_kv.put(EDITION,_li.xpath("//span[@class='edition']/text()").get());
 
-            _li=detail_base_li_selectables.get(0);
+            _li=detail_base_li_selectables.get(1);//更新情况
+            sesaon_info_kv.put(UPDATE_INFO, _li.xpath("li/text()").get());
 
-        }else if(detail_base_li_selectables.size()==14){
+            _li=detail_base_li_selectables.get(2); //别名
+            sesaon_info_kv.put(ALIAS,_li.xpath("li/@title").get());
+
+            _li=detail_base_li_selectables.get(3); //优酷开播时间
+            sesaon_info_kv.put(PUB_WEB,_li.xpath("span/text()").get());
+
+            _li=detail_base_li_selectables.get(4); //评分
+            sesaon_info_kv.put(SCORE,_li.xpath("span[@class='star-num']/text()").get());
+
+            _li=detail_base_li_selectables.get(5); //适用年龄
+            sesaon_info_kv.put(RANGE_OF_APPLICATION,_li.xpath("li/text()").get());
+
+            _li=detail_base_li_selectables.get(6); //导演
+            sesaon_info_kv.put(DIRECTOR,_li.xpath("a/@title").get());
+
+            _li=detail_base_li_selectables.get(7); //地区
+            sesaon_info_kv.put(REGION,_li.xpath("a/text()").get());
+
+            _li=detail_base_li_selectables.get(8); //类型
+            List<String> types=_li.xpath("a/text()").all();
+            sesaon_info_kv.put(TYPES,StringUtils.join(types,"/"));
+
+            _li=detail_base_li_selectables.get(9); //总播放
+            sesaon_info_kv.put(PLAY_COUNT,_li.xpath("li/text()").get());
+
+            _li=detail_base_li_selectables.get(10); //评论数
+            sesaon_info_kv.put(COMMENT_NUM,_li.xpath("li/text()").get());
+
+            _li=detail_base_li_selectables.get(11); //顶
+            sesaon_info_kv.put(THUMBS_UP_NUM,_li.xpath("li/text()").get());
+
+            _li=detail_base_li_selectables.get(12); //配音
+            List<String> dubbeds=_li.xpath("a/text()").all();
+            sesaon_info_kv.put(DUBBEDS,StringUtils.join(dubbeds,"/"));
+
+            _li=detail_base_li_selectables.get(13); //描述
+            sesaon_info_kv.put(BRIEF,_li.xpath("span[@class='intro-more hide']/text()").get());
+
+        }else {
             //番剧信息列表带番剧上映时间
+            _li=detail_base_li_selectables.get(0);//p-title
+            sesaon_info_kv.put(EDITION,_li.xpath("//span[@class='edition']/text()").get());
 
-        }else{
-            //未知的列表信息
-            logger.error("pageProcessor detail page ERROR ",detail_base_div_selectable.xpath("ul/li").toString());
+            _li=detail_base_li_selectables.get(1);//更新情况
+            sesaon_info_kv.put(UPDATE_INFO, _li.xpath("li/text()").get());
+
+            _li=detail_base_li_selectables.get(2); //别名
+            sesaon_info_kv.put(ALIAS,_li.xpath("li/@title").get());
+
+            _li=detail_base_li_selectables.get(3); //上映时间
+            sesaon_info_kv.put(SCREEN_TIME,_li.xpath("span/text()").get());
+
+            _li=detail_base_li_selectables.get(4); //优酷开播时间
+            sesaon_info_kv.put(PUB_WEB,_li.xpath("span/text()").get());
+
+            _li=detail_base_li_selectables.get(5); //评分
+            sesaon_info_kv.put(SCORE,_li.xpath("span[@class='star-num']/text()").get());
+
+            _li=detail_base_li_selectables.get(6); //适用年龄
+            sesaon_info_kv.put(RANGE_OF_APPLICATION,_li.xpath("li/text()").get());
+
+            _li=detail_base_li_selectables.get(7); //导演
+            sesaon_info_kv.put(DIRECTOR,_li.xpath("a/@title").get());
+
+            _li=detail_base_li_selectables.get(8); //地区
+            sesaon_info_kv.put(REGION,_li.xpath("a/text()").get());
+
+            _li=detail_base_li_selectables.get(9); //类型
+            List<String> types=_li.xpath("a/text()").all();
+            sesaon_info_kv.put(TYPES,StringUtils.join(types,"/"));
+
+            _li=detail_base_li_selectables.get(10); //总播放
+            sesaon_info_kv.put(PLAY_COUNT,_li.xpath("li/text()").get());
+
+            _li=detail_base_li_selectables.get(11); //评论数
+            sesaon_info_kv.put(COMMENT_NUM,_li.xpath("li/text()").get());
+
+            _li=detail_base_li_selectables.get(12); //顶
+            sesaon_info_kv.put(THUMBS_UP_NUM,_li.xpath("li/text()").get());
+
+            _li=detail_base_li_selectables.get(13); //配音
+            List<String> dubbeds=_li.xpath("a/text()").all();
+            sesaon_info_kv.put(DUBBEDS,StringUtils.join(dubbeds,"/"));
+
+            _li=detail_base_li_selectables.get(14); //描述
+            sesaon_info_kv.put(BRIEF,_li.xpath("span[@class='intro-more hide']/text()").get());
 
         }
 
+        page.putField(YoukuAnimeSessionInfoPipeline.season_info_kv,sesaon_info_kv);
 
-        //sesaon_info_kv.put("",);
 
 
     }
@@ -147,8 +233,8 @@ public class YoukuAnimeIndexPageProcessor implements PageProcessor {
 
     public static void main(String[] args) {
         Spider.create(new YoukuAnimeIndexPageProcessor())
-                .addUrl("http://list.youku.com/category/show/c_100_s_1_d_2_p_1.html")
+                .addUrl("http://list.youku.com/category/show/c_100_ag_0_s_1_d_1.html")
                 .addPipeline(new YoukuAnimeSessionInfoPipeline())
-                .thread(10).run();
+                .thread(1).run();
     }
 }

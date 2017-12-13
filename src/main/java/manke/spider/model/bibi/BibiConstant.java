@@ -1,11 +1,13 @@
 package manke.spider.model.bibi;
 
+import manke.spider.model.AnimeKeyNameConstant;
+
 /**
  * Created by LENOVO on 2017/12/5.
  *
  * 封装 bibi  数据的常量信息
  */
-public class BibiConstant {
+public class BibiConstant extends AnimeKeyNameConstant{
 
     public  final  static  String  SEASON_ID="season_id";
 
