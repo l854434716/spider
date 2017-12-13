@@ -4,7 +4,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
-import manke.spider.model.bibi.BibiConstant;
+import manke.spider.model.qq.QqConstant;
 import manke.spider.pipeline.AbstractMongodbPipeline;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -14,6 +14,7 @@ import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by luozhi on 2017/5/22.
@@ -23,7 +24,7 @@ public class QqAnimeTimelinePipeline extends AbstractMongodbPipeline implements 
     private  static Logger logger= LoggerFactory.getLogger(QqAnimeTimelinePipeline.class);
 
 
-    public final static  String  bibiTimelineLastDaySesssionArrayJsonStr="bibiTimelineLastDaySesssionArrayJsonStr";
+    public final static  String  SEASON_INFO_KVS="season_info_kvs";
 
     private  UpdateOptions updateOptions=new UpdateOptions().upsert(true);
 
@@ -32,21 +33,22 @@ public class QqAnimeTimelinePipeline extends AbstractMongodbPipeline implements 
         if (resultItems.isSkip())
             return;
 
-        List<String> sessions=resultItems.get(bibiTimelineLastDaySesssionArrayJsonStr);
+        List<Map<String,String>> season_info_kvs=resultItems.get(SEASON_INFO_KVS);
 
-        if (sessions!=null&&sessions.size()>0){
+        String updata_time=resultItems.get(QqConstant.UPDATE_TIME);
+        if (season_info_kvs!=null&&season_info_kvs.size()>0){
 
             try{
                 MongoDatabase mongoDatabase = mongoClient.getDatabase("spider");
-                MongoCollection<Document> collection=mongoDatabase.getCollection("bibi_timeline_animes");
+                MongoCollection<Document> collection=mongoDatabase.getCollection("qq_timeline_animes");
                 Document document=null;
-                for (String  json:sessions){
-                    document = Document.parse(json);
-                    document.put("_id",document.get(BibiConstant.SEASON_ID));  //指定_id 为 bibi sessionid
-                    document.put(BibiConstant.DATE_TS,resultItems.get(BibiConstant.DATE_TS));
-                    document.put(BibiConstant.DAY_OF_WEEK,resultItems.get(BibiConstant.DAY_OF_WEEK));
+                for (Map<String,String>  season_info_kv:season_info_kvs){
+                    document = new Document();
+                    document.put("_id",season_info_kv.get(QqConstant.SEASON_ID));  //指定_id 为 bibi sessionid
+                    document.put(QqConstant.UPDATE_TIME,updata_time);
+                    document.putAll(season_info_kv);
                     logger.info("commit {} to queue",document.toJson());
-                    collection.replaceOne(Filters.eq("_id",document.get(BibiConstant.SEASON_ID)),document,updateOptions);
+                    collection.replaceOne(Filters.eq("_id",document.get(QqConstant.SEASON_ID)),document,updateOptions);
                 }
 
                 logger.info("commit data success");

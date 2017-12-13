@@ -39,5 +39,8 @@ public class QqConstant {
     //番剧更新情况
     public  final  static  String  UPDATE_INFO="update_info";
 
+    //番剧更新时间
+    public  final  static  String  UPDATE_TIME="update_time";
+
 
 }

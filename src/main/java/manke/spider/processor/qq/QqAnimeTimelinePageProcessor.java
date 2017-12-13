@@ -1,6 +1,5 @@
 package manke.spider.processor.qq;
 
-import manke.spider.model.bibi.BibiConstant;
 import manke.spider.model.qq.QqConstant;
 import manke.spider.pipeline.qq.QqAnimeTimelinePipeline;
 import org.apache.commons.collections.map.HashedMap;
@@ -35,7 +34,7 @@ public class QqAnimeTimelinePageProcessor implements PageProcessor {
 
         if(StringUtils.contains(page.getRequest().getUrl(),"cartoon")){
 
-            //最新的番剧更新列表（取最远的那天的数据）
+            //最新的番剧更新列表（取最远的那天的数据） 腾讯视频 显示最多5天后的番剧更新信息
             List<Selectable>  season_li_list=null;
             Map<String,String> season_info_kv=null;
             List< Map<String,String>> season_info_kvs=new ArrayList<>();
@@ -79,8 +78,10 @@ public class QqAnimeTimelinePageProcessor implements PageProcessor {
                     }
                 }
 
-                page.putField("",season_info_kvs);
-                page.putField(BibiConstant.DAY_OF_WEEK,day_of_week);
+                page.putField(QqAnimeTimelinePipeline.SEASON_INFO_KVS,season_info_kvs);
+                //腾讯视频 显示最多5天后的番剧更新信息
+                page.putField(QqConstant.UPDATE_TIME,System.currentTimeMillis()+5*24*60*60*1000+"");
+
 
             }catch (Exception e){
                 logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
