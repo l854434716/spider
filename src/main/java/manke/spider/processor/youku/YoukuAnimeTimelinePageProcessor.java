@@ -1,7 +1,8 @@
 package manke.spider.processor.youku;
 
 import manke.spider.model.qq.QqConstant;
-import manke.spider.pipeline.qq.QqAnimeTimelinePipeline;
+import manke.spider.model.youku.YoukuConstant;
+import manke.spider.pipeline.youku.YoukuAnimeTimelinePipeline;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,8 +19,8 @@ import java.util.Map;
 
 /**
  * Created by luozhi on 2017/5/21.
- *  抓取增量的番剧数据
- * 从 url 获取 信息  1.https://v.qq.com/x/channel/cartoon
+ *  新番时间表
+ * 从 url 获取 信息  1.http://comic.youku.com/bangumi
  *
  */
 public class YoukuAnimeTimelinePageProcessor implements PageProcessor {
@@ -32,55 +33,42 @@ public class YoukuAnimeTimelinePageProcessor implements PageProcessor {
 
     public void process(Page page) {
 
-        if(StringUtils.contains(page.getRequest().getUrl(),"cartoon")){
+        if(StringUtils.contains(page.getRequest().getUrl(),"comic")){
 
-            //最新的番剧更新列表（取最远的那天的数据） 腾讯视频 显示最多5天后的番剧更新信息
-            List<Selectable>  season_li_list=null;
+            //最新的番剧更新列表，优酷视频只显示本周要更新的番剧信息。所以每周运行一次，将本周新番数据全部获取到即可
+            List<Selectable>  season_div_list=null;
+            List<Selectable>  season_ul_list=null;
             Map<String,String> season_info_kv=null;
             List< Map<String,String>> season_info_kvs=new ArrayList<>();
             String date_ts=null;
             String day_of_week=null;
             try {
                 //数据转换出错或者数据来源url 是其他页面
-                season_li_list=
-                page.getHtml().xpath("//div[@class='mod_figure mod_figure_v mod_figure_v_default']/ul[@data-schedule-tab='7']/li").nodes();
-                if (season_li_list!=null){
+                season_div_list=
+                page.getHtml().xpath("//div[@class='yk-con']/div").nodes();
+                if (season_div_list!=null){
 
-                    for(Selectable li:season_li_list){
+                    int  week_index=0;
 
-                        /*<li class="list_item" __wind>
-                        <a href="https://v.qq.com/x/cover/nubvtawpmjjgvu7.html"  target="_blank" class="figure" tabindex="-1" _stat="schedule:img" data-float="nubvtawpmjjgvu7" >
-                        <img class="figure_pic" lz_src="//puui.qpic.cn/vcover_vt_pic/0/nubvtawpmjjgvu71507518295/220" alt="幻界战线 &amp; BEYOND" onerror="picerr(this,'v')" src="//i.gtimg.cn/qqlive/images/20150608/pic_v.png">
-                        <div class="figure_count">
+                    for(Selectable season_div:season_div_list){
+                        if (week_index==0){
+                            //week_index 为0 代表当前div 是番剧周更表的表头图片  之后 week_index 数字代表周几
+                            continue;
+                        }
 
+                        season_ul_list=season_div.xpath("//div[@class='yk-pack pack-film']/ul").nodes();
 
-                                更新至10集
+                        season_info_kv.put(YoukuConstant.UPDATE_INFO,season_ul_list.get(0).xpath("li/span/text()").get());
+                        season_info_kv.put(YoukuConstant.UPDATE_TIME,season_ul_list.get(1).xpath("li[2]/span/text()").get());
+                        season_info_kv.put(YoukuConstant.TITLE,season_ul_list.get(1).xpath("li[1]/a/text()").get());
+                        season_info_kv.put(YoukuConstant.SEASON_ID,season_ul_list.get(1).xpath("li[1]/a/@href").regex(".*id_(.*)\\.html.*").get());
 
-
-                                </div>
-
-                        <div class="figure_score"><em class="score_l">9</em><em class="score_s">.3</em></div>
-
-                        </a>
-                        <div class="figure_detail figure_detail_two_row">
-                        <strong class="figure_title figure_title_two_row"><a href="https://v.qq.com/x/cover/nubvtawpmjjgvu7.html" title="幻界战线 &amp; BEYOND" _stat="schedule:title" target="_blank">幻界战线 &amp; BEYOND</a></strong>
-                        <div class="figure_desc" title="地球上最危险的城市">
-                                地球上最危险的城市
-                                </div>
-                        </div>
-
-                        </li>*/
-                        season_info_kv=new HashedMap();
-                        season_info_kv.put(QqConstant.SEASON_ID,li.xpath("a/@data-float").get());
-                        season_info_kv.put(QqConstant.UPDATE_INFO,li.xpath("div[@class='figure_count']/text()").get());
-                        season_info_kv.put(QqConstant.TITLE,li.xpath("//strong[@class='figure_title figure_title_two_row']/a/@title").get());
                         season_info_kvs.add(season_info_kv);
+                        week_index++;
                     }
                 }
 
-                page.putField(QqAnimeTimelinePipeline.SEASON_INFO_KVS,season_info_kvs);
-                //腾讯视频 显示最多5天后的番剧更新信息
-                page.putField(QqConstant.UPDATE_TIME,System.currentTimeMillis()+5*24*60*60*1000+"");
+                page.putField(YoukuAnimeTimelinePipeline.SEASON_INFO_KVS,season_info_kvs);
 
 
             }catch (Exception e){
@@ -106,8 +94,8 @@ public class YoukuAnimeTimelinePageProcessor implements PageProcessor {
 
     public static void main(String[] args) {
         Spider.create(new YoukuAnimeTimelinePageProcessor())
-                .addUrl("https://v.qq.com/x/channel/cartoon")
-                .addPipeline(new QqAnimeTimelinePipeline())
+                .addUrl("http://comic.youku.com/bangumi")
+                .addPipeline(new YoukuAnimeTimelinePipeline())
                 .thread(1).run();
     }
 }
