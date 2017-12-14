@@ -94,6 +94,13 @@ public class AnimeKeyNameConstant {
     public final  static String  BRIEF="brief";
 
 
+    //爬取时间戳
+    public final  static String  SPIDER_TS="spider_ts";
+
+    //番剧周几更新
+    public final  static String  UPDATE_WEEK="update_week";
+
+
 
 
 }

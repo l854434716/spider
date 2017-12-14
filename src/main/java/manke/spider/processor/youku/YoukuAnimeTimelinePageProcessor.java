@@ -35,36 +35,42 @@ public class YoukuAnimeTimelinePageProcessor implements PageProcessor {
 
         if(StringUtils.contains(page.getRequest().getUrl(),"comic")){
 
-            //最新的番剧更新列表，优酷视频只显示本周要更新的番剧信息。所以每周运行一次，将本周新番数据全部获取到即可
+            //最新的番剧更新列表，优酷视频只显示本周要更新的番剧信息。所以每周1运行一次，将本周新番数据全部获取到即可
             List<Selectable>  season_div_list=null;
-            List<Selectable>  season_ul_list=null;
+            List<Selectable>  season_pack_list=null;
             Map<String,String> season_info_kv=null;
             List< Map<String,String>> season_info_kvs=new ArrayList<>();
-            String date_ts=null;
+            String date_ts=System.currentTimeMillis()+"";
             String day_of_week=null;
             try {
                 //数据转换出错或者数据来源url 是其他页面
                 season_div_list=
-                page.getHtml().xpath("//div[@class='yk-con']/div").nodes();
+                page.getHtml().xpath("//div[@class='mod mod-new']").nodes();
                 if (season_div_list!=null){
 
-                    int  week_index=0;
-
                     for(Selectable season_div:season_div_list){
-                        if (week_index==0){
-                            //week_index 为0 代表当前div 是番剧周更表的表头图片  之后 week_index 数字代表周几
-                            continue;
+                        day_of_week=season_div.xpath("div[@class='h']/h2/text()").get();
+
+                        season_pack_list=season_div.xpath("//div[@class='yk-pack pack-film']").nodes();
+                        if (season_pack_list!=null){
+
+                            for (Selectable season_pack:season_pack_list){
+
+                                season_info_kv=new HashedMap();
+                                season_info_kv.put(YoukuConstant.UPDATE_WEEK,day_of_week);
+                                season_info_kv.put(YoukuConstant.SPIDER_TS,date_ts);
+                                season_info_kv.put(YoukuConstant.UPDATE_INFO,season_pack.xpath("//span[@class='p-num']/text()").get());
+                                season_info_kv.put(YoukuConstant.UPDATE_TIME,season_pack.xpath("//li[@class='subtitle']/span/text()").get());
+                                season_info_kv.put(YoukuConstant.TITLE,season_pack.xpath("//li[@class='title short-title']/a/text()").get());
+                                season_info_kv.put(YoukuConstant.SEASON_ID,season_pack.xpath("//li[@class='title short-title']/a/@href").regex(".*id_(.*)\\.html.*").get());
+
+                                season_info_kvs.add(season_info_kv);
+
+                            }
+
                         }
 
-                        season_ul_list=season_div.xpath("//div[@class='yk-pack pack-film']/ul").nodes();
 
-                        season_info_kv.put(YoukuConstant.UPDATE_INFO,season_ul_list.get(0).xpath("li/span/text()").get());
-                        season_info_kv.put(YoukuConstant.UPDATE_TIME,season_ul_list.get(1).xpath("li[2]/span/text()").get());
-                        season_info_kv.put(YoukuConstant.TITLE,season_ul_list.get(1).xpath("li[1]/a/text()").get());
-                        season_info_kv.put(YoukuConstant.SEASON_ID,season_ul_list.get(1).xpath("li[1]/a/@href").regex(".*id_(.*)\\.html.*").get());
-
-                        season_info_kvs.add(season_info_kv);
-                        week_index++;
                     }
                 }
 
@@ -72,7 +78,7 @@ public class YoukuAnimeTimelinePageProcessor implements PageProcessor {
 
 
             }catch (Exception e){
-                logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
+                logger.error("can not  process url {}  data",page.getRequest().getUrl(),e);
             }
 
 
