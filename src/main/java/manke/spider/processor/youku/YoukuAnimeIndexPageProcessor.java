@@ -1,7 +1,4 @@
 package manke.spider.processor.youku;
-
-import manke.spider.model.AnimeKeyNameConstant;
-import manke.spider.model.youku.YoukuConstant;
 import manke.spider.pipeline.youku.YoukuAnimeSessionInfoPipeline;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -233,8 +230,8 @@ public class YoukuAnimeIndexPageProcessor implements PageProcessor {
 
     public static void main(String[] args) {
         Spider.create(new YoukuAnimeIndexPageProcessor())
-                .addUrl("http://list.youku.com/category/show/c_100_ag_0_s_1_d_1.html")
+                .addUrl("http://list.youku.com/category/show/c_100_pt_0_s_1_d_2.html")
                 .addPipeline(new YoukuAnimeSessionInfoPipeline())
-                .thread(1).run();
+                .thread(10).run();
     }
 }
