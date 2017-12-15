@@ -35,7 +35,6 @@ public class QqAnimeTimelinePipeline extends AbstractMongodbPipeline implements 
 
         List<Map<String,String>> season_info_kvs=resultItems.get(SEASON_INFO_KVS);
 
-        String updata_time=resultItems.get(QqConstant.UPDATE_TIME);
         if (season_info_kvs!=null&&season_info_kvs.size()>0){
 
             try{
@@ -45,7 +44,6 @@ public class QqAnimeTimelinePipeline extends AbstractMongodbPipeline implements 
                 for (Map<String,String>  season_info_kv:season_info_kvs){
                     document = new Document();
                     document.put("_id",season_info_kv.get(QqConstant.SEASON_ID));  //指定_id 为 bibi sessionid
-                    document.put(QqConstant.UPDATE_TIME,updata_time);
                     document.putAll(season_info_kv);
                     logger.info("commit {} to queue",document.toJson());
                     collection.replaceOne(Filters.eq("_id",document.get(QqConstant.SEASON_ID)),document,updateOptions);

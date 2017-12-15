@@ -2,6 +2,7 @@ package manke.spider.processor.qq;
 
 import manke.spider.model.qq.QqConstant;
 import manke.spider.pipeline.qq.QqAnimeTimelinePipeline;
+import manke.spider.processor.AbstractPageProcessor;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,13 +23,9 @@ import java.util.Map;
  * 从 url 获取 信息  1.https://v.qq.com/x/channel/cartoon
  *
  */
-public class QqAnimeTimelinePageProcessor implements PageProcessor {
+public class QqAnimeTimelinePageProcessor extends AbstractPageProcessor {
     Logger  logger= LoggerFactory.getLogger(QqAnimeTimelinePageProcessor.class);
 
-    private Site site = Site.me()
-            //.enableHttpProxyPool()
-            .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-            .setRetryTimes(3).setSleepTime(3000).setTimeOut(10000).setCharset("UTF-8");
 
     public void process(Page page) {
 
@@ -43,7 +40,7 @@ public class QqAnimeTimelinePageProcessor implements PageProcessor {
             try {
                 //数据转换出错或者数据来源url 是其他页面
                 season_ul_list=
-                page.getHtml().xpath("//div[@class='mod_figure mod_figure_v mod_figure_v_default']/ul[@class='figure_list']").nodes();
+                page.getHtml().xpath("//div[@class='mod_figure mod_figure_v mod_figure_v_default']/ul[@data-schedule-tab]").nodes();
                 if (season_ul_list!=null){
                     List<Selectable> season_li_list=null;
                     for(int i=1;i<season_ul_list.size();i++){
@@ -106,15 +103,6 @@ public class QqAnimeTimelinePageProcessor implements PageProcessor {
     }
 
 
-
-
-
-    public Site getSite() {
-        List<String[]> poolHosts = new ArrayList<String[]>();
-        poolHosts.add(new String[]{"username","password","178.140.216.229","8080"});
-      //  site.setHttpProxyPool(poolHosts,false);
-        return site;
-    }
 
     public static void main(String[] args) {
         Spider.create(new QqAnimeTimelinePageProcessor())

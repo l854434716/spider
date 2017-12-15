@@ -1,5 +1,6 @@
 package manke.spider.processor.youku;
 import manke.spider.pipeline.youku.YoukuAnimeSessionInfoPipeline;
+import manke.spider.processor.AbstractPageProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +24,9 @@ import  static  manke.spider.model.youku.YoukuConstant.*;
  *                   3.http://v.youku.com/v_show/id_XODU2MTEyNjI4.html 从该番剧播放url获取 番剧详细信息url
  *                    z9a8e9ba0605611e2a19e 表示番剧详情信息查询ID  优酷网番剧的唯一标识ID 有多种，这里使用番剧详情信息查询ID
  */
-public class YoukuAnimeIndexPageProcessor implements PageProcessor {
+public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
     Logger  logger= LoggerFactory.getLogger(YoukuAnimeIndexPageProcessor.class);
 
-    private Site site = Site.me()
-            //.enableHttpProxyPool()
-            .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-            .setRetryTimes(3).setSleepTime(1000).setTimeOut(10000).setCharset("UTF-8");
 
     public void process(Page page) {
 
@@ -221,12 +218,6 @@ public class YoukuAnimeIndexPageProcessor implements PageProcessor {
         }
     }
 
-    public Site getSite() {
-        List<String[]> poolHosts = new ArrayList<String[]>();
-        poolHosts.add(new String[]{"username","password","178.140.216.229","8080"});
-      //  site.setHttpProxyPool(poolHosts,false);
-        return site;
-    }
 
     public static void main(String[] args) {
         Spider.create(new YoukuAnimeIndexPageProcessor())

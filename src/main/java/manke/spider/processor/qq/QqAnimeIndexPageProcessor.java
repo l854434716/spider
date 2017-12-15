@@ -4,6 +4,7 @@ import manke.spider.model.qq.QqConstant;
 import manke.spider.pipeline.bibi.BibiAnimeIndexPipeline;
 import manke.spider.pipeline.bibi.BibiAnimeSessionInfoPipeline;
 import manke.spider.pipeline.qq.QqAnimeSessionInfoPipeline;
+import manke.spider.processor.AbstractPageProcessor;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *                    2.http://node.video.qq.com/x/api/float_vinfo2?cid=p0pcfbdk318ry3m  番剧详细信息
  *                    p0pcfbdk318ry3m 表示番剧ID
  */
-public class QqAnimeIndexPageProcessor implements PageProcessor {
+public class QqAnimeIndexPageProcessor extends AbstractPageProcessor {
     Logger  logger= LoggerFactory.getLogger(QqAnimeIndexPageProcessor.class);
 
     //缓存从番剧list页面爬取下来的番剧信息，供保存番剧详情信息的pipeline使用  k 为番剧ID v 为番剧属性和值
@@ -35,10 +36,6 @@ public class QqAnimeIndexPageProcessor implements PageProcessor {
     //番剧详情信息url 前缀
     private  final String  preUrlDetailSeason="http://node.video.qq.com/x/api/float_vinfo2?cid=";
 
-    private Site site = Site.me()
-            //.enableHttpProxyPool()
-            .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-            .setRetryTimes(3).setSleepTime(1000).setTimeOut(10000).setCharset("UTF-8");
 
     public void process(Page page) {
 
@@ -140,12 +137,6 @@ public class QqAnimeIndexPageProcessor implements PageProcessor {
 
     }
 
-    public Site getSite() {
-        List<String[]> poolHosts = new ArrayList<String[]>();
-        poolHosts.add(new String[]{"username","password","178.140.216.229","8080"});
-      //  site.setHttpProxyPool(poolHosts,false);
-        return site;
-    }
 
     public static void main(String[] args) {
         Spider.create(new QqAnimeIndexPageProcessor())

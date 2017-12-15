@@ -3,6 +3,7 @@ package manke.spider.processor.youku;
 import manke.spider.model.qq.QqConstant;
 import manke.spider.model.youku.YoukuConstant;
 import manke.spider.pipeline.youku.YoukuAnimeTimelinePipeline;
+import manke.spider.processor.AbstractPageProcessor;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,13 +24,8 @@ import java.util.Map;
  * 从 url 获取 信息  1.http://comic.youku.com/bangumi
  *
  */
-public class YoukuAnimeTimelinePageProcessor implements PageProcessor {
+public class YoukuAnimeTimelinePageProcessor extends AbstractPageProcessor {
     Logger  logger= LoggerFactory.getLogger(YoukuAnimeTimelinePageProcessor.class);
-
-    private Site site = Site.me()
-            //.enableHttpProxyPool()
-            .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-            .setRetryTimes(3).setSleepTime(3000).setTimeOut(10000).setCharset("UTF-8");
 
     public void process(Page page) {
 
@@ -87,16 +83,6 @@ public class YoukuAnimeTimelinePageProcessor implements PageProcessor {
 
     }
 
-
-
-
-
-    public Site getSite() {
-        List<String[]> poolHosts = new ArrayList<String[]>();
-        poolHosts.add(new String[]{"username","password","178.140.216.229","8080"});
-      //  site.setHttpProxyPool(poolHosts,false);
-        return site;
-    }
 
     public static void main(String[] args) {
         Spider.create(new YoukuAnimeTimelinePageProcessor())

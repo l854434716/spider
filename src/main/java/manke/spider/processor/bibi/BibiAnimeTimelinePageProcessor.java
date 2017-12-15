@@ -2,6 +2,7 @@ package manke.spider.processor.bibi;
 
 import manke.spider.model.bibi.BibiConstant;
 import manke.spider.pipeline.bibi.BibiAnimeTimelinePipeline;
+import manke.spider.processor.AbstractPageProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,13 +21,9 @@ import java.util.List;
  *                   2.http://bangumi.bilibili.com/web_api/timeline_cn      国内番剧集
  *
  */
-public class BibiAnimeTimelinePageProcessor implements PageProcessor {
+public class BibiAnimeTimelinePageProcessor extends AbstractPageProcessor {
     Logger  logger= LoggerFactory.getLogger(BibiAnimeTimelinePageProcessor.class);
 
-    private Site site = Site.me()
-            //.enableHttpProxyPool()
-            .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
-            .setRetryTimes(3).setSleepTime(3000).setTimeOut(10000).setCharset("UTF-8");
 
     public void process(Page page) {
 
@@ -80,15 +77,6 @@ public class BibiAnimeTimelinePageProcessor implements PageProcessor {
     }
 
 
-
-
-
-    public Site getSite() {
-        List<String[]> poolHosts = new ArrayList<String[]>();
-        poolHosts.add(new String[]{"username","password","178.140.216.229","8080"});
-      //  site.setHttpProxyPool(poolHosts,false);
-        return site;
-    }
 
     public static void main(String[] args) {
         Spider.create(new BibiAnimeTimelinePageProcessor())
