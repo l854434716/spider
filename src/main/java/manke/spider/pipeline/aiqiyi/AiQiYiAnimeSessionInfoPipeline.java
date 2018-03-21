@@ -31,7 +31,7 @@ public class AiQiYiAnimeSessionInfoPipeline extends AbstractMongodbPipeline impl
         Map<String,Map<String,String>> season_info_kv=resultItems.get(AiQiYiAnimeSessionInfoPipeline.season_info_kv);
         if (season_info_kv!=null){
             try {
-                MongoDatabase mongoDatabase = mongoClient.getDatabase("htlan");
+                MongoDatabase mongoDatabase = mongoClient.getDatabase("spider");
                 MongoCollection<Document> collection = mongoDatabase.getCollection("aiqiyi_sessioninfo");
 
                 Document document=new Document();
