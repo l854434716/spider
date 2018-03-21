@@ -8,7 +8,7 @@ import java.util.Properties;
 /**
  * Created by LENOVO on 2018/3/21.
  */
-public interface Job<T,V> {
+public interface Job<T,V>  extends Configurable {
 
     void  start();
 
@@ -20,7 +20,5 @@ public interface Job<T,V> {
 
 
     void   etl();
-
-
-    void   setJobConfig(Properties properties);
+    
 }

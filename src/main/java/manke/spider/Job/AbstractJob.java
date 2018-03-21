@@ -31,7 +31,7 @@ public   abstract  class AbstractJob<T,V>  implements Job<T,V> {
     }
 
     @Override
-    public void setJobConfig(Properties properties) {
+    public void context(Properties properties) {
         jobConfig=properties;
     }
 
