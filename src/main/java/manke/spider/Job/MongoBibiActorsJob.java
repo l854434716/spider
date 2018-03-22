@@ -33,11 +33,22 @@ public class MongoBibiActorsJob extends  AbstractJob<FindIterable<Document>,Stri
             Document document= resultCursor.next();
 
             ArrayList<Object> actors=document.get("actor", ArrayList.class);
-
+            String actorName=null;
+            String role=null;
             for(Object object:actors){
 
                 Document actor= (Document) object;
-                //System.out.println(actor.getString("actor")+" role as "+actor.getString("role")+"anime id is "+d.getString("season_id"));
+                actorName=actor.getString("actor");
+                role=actor.getString("role");
+                if(StringUtils.isEmpty(actorName)||StringUtils.isEmpty(role)){
+                    break;
+                }
+                if (StringUtils.containsAny(actorName,',','/','、','【')||StringUtils.containsWhitespace(actorName)){
+                    break;
+                }
+                if(StringUtils.containsAny(role,',')){
+                    break;
+                }
                 outPutResult=StringUtils.join(actor.getString("actor"),","+actor.getString("role")+","+document.getString("season_id"));
                 dataOutput.output(outPutResult);
             }
