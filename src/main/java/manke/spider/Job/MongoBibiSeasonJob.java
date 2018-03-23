@@ -7,7 +7,9 @@ import manke.spider.input.MongoBibiAcotorsInput;
 import manke.spider.input.MongoBibiSeasonInfoInput;
 import manke.spider.mongo.MongoClinetSingleton;
 import manke.spider.output.FileDataOutput;
+import manke.spider.transform.DateTransform;
 import manke.spider.transform.RegionTransform;
+import manke.spider.transform.TextTransform;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.bson.Document;
@@ -94,7 +96,9 @@ public class MongoBibiSeasonJob extends  AbstractJob<FindIterable<Document>,Stri
             danmaku_count=NumberUtils.toInt(document.getString("danmaku_count"),0);
             results.add(danmaku_count);
             evaluate=document.getString("evaluate");
-            results.add(evaluate);
+            evaluate=TextTransform.replaceNewLineSymbol(evaluate,' ');
+            evaluate=TextTransform.replaceEnComma(evaluate,'，');
+            //results.add(evaluate);
             favorites=NumberUtils.toInt(document.getString("favorites"),0);
             results.add(favorites);
             is_finish= NumberUtils.toInt(document.getString("is_finish"),0);
@@ -116,18 +120,18 @@ public class MongoBibiSeasonJob extends  AbstractJob<FindIterable<Document>,Stri
             results.add(bangumi_title);
             season_title=document.getString("season_title");
             results.add(season_title);
-            webplayurl=document.getString("webplayurl");
+            webplayurl=document.getString("share_url");
             results.add(webplayurl);
 
             season_id=NumberUtils.toInt(document.getString("season_id"));
             results.add(season_id);
-            if (StringUtils.isEmpty(pub_time)){
+            if (!DateTransform.isPub_Time(pub_time)){
 
                 System.out.println(season_id);
             }
             regionCode=RegionTransform.getRegionCodeByName(document.getString("area"));
             results.add(regionCode);
-            dataOutput.output(StringUtils.join(results,"|"));
+            dataOutput.output(StringUtils.join(results,","));
             results.clear();
         }
 

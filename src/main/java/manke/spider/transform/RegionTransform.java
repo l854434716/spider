@@ -36,7 +36,7 @@ public class RegionTransform {
     public  static   String  getRegionCodeByName(String name){
 
          if (regionMap.get(name)==null){
-             return "-1";
+             return "17";
          }else{
              return regionMap.get(name);
          }
