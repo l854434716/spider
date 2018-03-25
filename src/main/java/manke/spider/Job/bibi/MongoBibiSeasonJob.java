@@ -1,15 +1,16 @@
-package manke.spider.Job;
+package manke.spider.Job.bibi;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
-import manke.spider.input.MongoBibiAcotorsInput;
-import manke.spider.input.MongoBibiSeasonInfoInput;
+import manke.spider.Job.AbstractJob;
+import manke.spider.Job.JobFactory;
+import manke.spider.input.bibi.MongoBibiSeasonInfoInput;
 import manke.spider.mongo.MongoClinetSingleton;
+import manke.spider.mongo.MongoHelper;
 import manke.spider.output.FileDataOutput;
 import manke.spider.transform.DateTransform;
 import manke.spider.transform.RegionTransform;
-import manke.spider.transform.TextTransform;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.bson.Document;
@@ -20,7 +21,7 @@ import java.util.List;
 /**
  * Created by LENOVO on 2018/3/21.
  */
-public class MongoBibiSeasonJob extends  AbstractJob<FindIterable<Document>,String> {
+public class MongoBibiSeasonJob extends AbstractJob<FindIterable<Document>,String> {
 
 
     @Override
@@ -44,13 +45,11 @@ public class MongoBibiSeasonJob extends  AbstractJob<FindIterable<Document>,Stri
 
         int danmaku_count=0;
 
-        String evaluate=null;
-
         int  favorites=0;
 
         int  is_finish=0;
 
-        float  score=0;
+        double  score=0;
 
         int  score_critic_num=0;
 
@@ -95,24 +94,21 @@ public class MongoBibiSeasonJob extends  AbstractJob<FindIterable<Document>,Stri
             results.add(cover);
             danmaku_count=NumberUtils.toInt(document.getString("danmaku_count"),0);
             results.add(danmaku_count);
-            evaluate=document.getString("evaluate");
-            evaluate=TextTransform.replaceNewLineSymbol(evaluate,' ');
-            evaluate=TextTransform.replaceEnComma(evaluate,'，');
-            //results.add(evaluate);
             favorites=NumberUtils.toInt(document.getString("favorites"),0);
             results.add(favorites);
             is_finish= NumberUtils.toInt(document.getString("is_finish"),0);
             results.add(is_finish);
-            score=NumberUtils.toFloat(document.getString("media.rating.score"),0f);
+            //
+            score=MongoHelper.getDocumentValue(document,"media.rating.score",Double.class, (double) 0);
 
             results.add(score);
-            score_critic_num=NumberUtils.toInt(document.getString("media.rating.count"),0);
+            score_critic_num=MongoHelper.getDocumentValue(document,"media.rating.count",Integer.class,0);
             results.add(score_critic_num);
             title=document.getString("title");
             results.add(title);
-            price=document.getString("payment.price");
+            price=MongoHelper.getDocumentValue(document,"payment.price",String.class,"0");
             results.add(price);
-            play_count=NumberUtils.toInt(document.getString("play_count"),0);
+            play_count=NumberUtils.toLong(document.getString("play_count"),0);
             results.add(play_count);
             pub_time=document.getString("pub_time");
             results.add(pub_time);
@@ -131,7 +127,7 @@ public class MongoBibiSeasonJob extends  AbstractJob<FindIterable<Document>,Stri
             }
             regionCode=RegionTransform.getRegionCodeByName(document.getString("area"));
             results.add(regionCode);
-            dataOutput.output(StringUtils.join(results,","));
+            dataOutput.output(StringUtils.join(results,"$"));
             results.clear();
         }
 

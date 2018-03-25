@@ -1,23 +1,22 @@
-package manke.spider.Job;
+package manke.spider.Job.bibi;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
-import manke.spider.input.DataInput;
-import manke.spider.input.MongoBibiAcotorsInput;
+import manke.spider.Job.AbstractJob;
+import manke.spider.Job.JobFactory;
+import manke.spider.input.bibi.MongoBibiAcotorsInput;
 import manke.spider.mongo.MongoClinetSingleton;
-import manke.spider.output.ConsoleDataOutput;
 import manke.spider.output.FileDataOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by LENOVO on 2018/3/21.
  */
-public class MongoBibiActorsJob extends  AbstractJob<FindIterable<Document>,String> {
+public class MongoBibiActorsJob extends AbstractJob<FindIterable<Document>,String> {
 
 
     @Override
