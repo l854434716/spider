@@ -182,7 +182,6 @@ create  table  qq_season_dim(
    `title` varchar(100)   COMMENT '番剧名称-番剧全名',
    `pub_year` smallint   COMMENT '出品年份',
    `season_id` varchar(30)   COMMENT '番剧season id',
-   `region_code` smallint  COMMENT '地区代码',
     version int  comment '数据版本',
     effective_date  date comment 'effective_date',
     expiry_date  date comment 'expiry_date'
@@ -224,7 +223,6 @@ create  table  youku_season_dim(
     `exclusive` varchar(30)   COMMENT '独家播放信息',
     `pub_time` date   COMMENT '上架时间',
     `season_id` varchar(30)   COMMENT '番剧season id',
-    `region_code` smallint  COMMENT '地区代码',
     `limit_age_up` smallint  COMMENT '适用人群年龄上限',
     `limit_age_down` smallint   COMMENT '适用人群年龄下限',
     version int  comment '数据版本',
