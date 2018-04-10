@@ -1,4 +1,4 @@
-package manke.spider.Job;
+package manke.spider.job;
 
 import java.util.Properties;
 

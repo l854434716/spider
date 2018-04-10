@@ -1,11 +1,11 @@
-package manke.spider.Job.bibi;
+package manke.spider.job.bibi;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
-import manke.spider.Job.AbstractJob;
-import manke.spider.Job.JobFactory;
 import manke.spider.input.bibi.MongoBibiSeasonInfoInput;
+import manke.spider.job.AbstractJob;
+import manke.spider.job.JobFactory;
 import manke.spider.mongo.MongoClinetSingleton;
 import manke.spider.mongo.MongoHelper;
 import manke.spider.output.FileDataOutput;
@@ -138,8 +138,9 @@ public class MongoBibiSeasonJob extends AbstractJob<FindIterable<Document>,Strin
 
 
     public  static void  main(String[] args){
-
-        FileDataOutput fileDataOutput=new FileDataOutput();
+        String outPutPath="/tmp/manke/bibi_anime_season";
+        String fileName="t_bibi_anime_season_info.csv";
+        FileDataOutput fileDataOutput=new FileDataOutput(outPutPath,fileName);
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoBibiSeasonInfoInput mongoBibiSeasonInfoInput=
                 new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes"));

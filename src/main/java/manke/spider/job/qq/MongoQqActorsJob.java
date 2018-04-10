@@ -1,12 +1,11 @@
-package manke.spider.Job.qq;
+package manke.spider.job.qq;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
-import manke.spider.Job.AbstractJob;
-import manke.spider.Job.JobFactory;
-import manke.spider.input.bibi.MongoBibiAcotorsInput;
 import manke.spider.input.qq.MongoQqAcotorsInput;
+import manke.spider.job.AbstractJob;
+import manke.spider.job.JobFactory;
 import manke.spider.mongo.MongoClinetSingleton;
 import manke.spider.output.FileDataOutput;
 import org.apache.commons.lang3.StringUtils;

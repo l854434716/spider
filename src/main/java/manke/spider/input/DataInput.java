@@ -1,9 +1,6 @@
 package manke.spider.input;
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.connection.Connection;
-import manke.spider.Job.Configurable;
-import org.bson.Document;
+import manke.spider.job.Configurable;
 
 /**
  * Created by LENOVO on 2018/3/21.

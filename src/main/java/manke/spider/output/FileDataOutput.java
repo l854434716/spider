@@ -19,6 +19,16 @@ public class FileDataOutput implements  DataOutput<String> {
         }
 
     }
+
+    public  FileDataOutput(String path ,String fileName){
+        try {
+            writer=new BufferedWriter(new FileWriter(new File(path+fileName)));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
     @Override
     public void context(Properties properties) {
 

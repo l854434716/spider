@@ -1,16 +1,14 @@
-package manke.spider.Job.youku;
+package manke.spider.job.youku;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
-import manke.spider.Job.AbstractJob;
-import manke.spider.Job.JobFactory;
-import manke.spider.input.qq.MongoQqSeasonInfoInput;
 import manke.spider.input.youku.MongoYoukuSeasonInfoInput;
+import manke.spider.job.AbstractJob;
+import manke.spider.job.JobFactory;
 import manke.spider.mongo.MongoClinetSingleton;
 import manke.spider.mongo.MongoHelper;
 import manke.spider.output.FileDataOutput;
-import manke.spider.transform.DateTransform;
 import manke.spider.transform.RegionTransform;
 import manke.spider.transform.TextTransform;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +58,7 @@ public class MongoYoukuSeasonJob extends AbstractJob<FindIterable<Document>,Stri
 
         String  webplayurl=null;
 
-        int  season_id=0;
+        String  season_id=null;
 
         String  regionCode=null;
 
@@ -113,7 +111,7 @@ public class MongoYoukuSeasonJob extends AbstractJob<FindIterable<Document>,Stri
             results.add(pub_time);
             webplayurl=document.getString("webplayurl");
             results.add(webplayurl);
-            season_id=NumberUtils.toInt(document.getString("_id"));
+            season_id=document.getString("_id");
             results.add(season_id);
             regionCode=RegionTransform.getRegionCodeByName(MongoHelper.getDocumentValue(document,"region",String.class));
             results.add(regionCode);
@@ -154,7 +152,9 @@ public class MongoYoukuSeasonJob extends AbstractJob<FindIterable<Document>,Stri
 
     public  static void  main(String[] args){
 
-        FileDataOutput fileDataOutput=new FileDataOutput();
+        String outPutPath="/tmp/manke/";
+        String fileName="t_youku_anime_season_info.csv";
+        FileDataOutput fileDataOutput=new FileDataOutput(outPutPath,fileName);
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoYoukuSeasonInfoInput mongoYoukuSeasonInfoInput=
                 new MongoYoukuSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("youku_sessioninfo_animes"));

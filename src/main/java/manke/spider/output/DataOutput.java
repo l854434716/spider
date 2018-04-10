@@ -1,6 +1,6 @@
 package manke.spider.output;
 
-import manke.spider.Job.Configurable;
+import manke.spider.job.Configurable;
 
 /**
  * Created by LENOVO on 2018/3/21.

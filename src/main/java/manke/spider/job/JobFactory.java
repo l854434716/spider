@@ -1,4 +1,4 @@
-package manke.spider.Job;
+package manke.spider.job;
 
 import manke.spider.input.DataInput;
 import manke.spider.output.DataOutput;

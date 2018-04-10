@@ -1,16 +1,14 @@
-package manke.spider.Job.qq;
+package manke.spider.job.qq;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
-import manke.spider.Job.AbstractJob;
-import manke.spider.Job.JobFactory;
-import manke.spider.input.bibi.MongoBibiSeasonInfoInput;
 import manke.spider.input.qq.MongoQqSeasonInfoInput;
+import manke.spider.job.AbstractJob;
+import manke.spider.job.JobFactory;
 import manke.spider.mongo.MongoClinetSingleton;
 import manke.spider.mongo.MongoHelper;
 import manke.spider.output.FileDataOutput;
-import manke.spider.transform.DateTransform;
 import manke.spider.transform.RegionTransform;
 import manke.spider.transform.TextTransform;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +48,7 @@ public class MongoQqSeasonJob extends AbstractJob<FindIterable<Document>,String>
 
         String  webplayurl=null;
 
-        int  season_id=0;
+        String  season_id=null;
 
         String  regionCode=null;
 
@@ -85,7 +83,7 @@ public class MongoQqSeasonJob extends AbstractJob<FindIterable<Document>,String>
             webplayurl=document.getString("webplayurl");
             results.add(webplayurl);
 
-            season_id=NumberUtils.toInt(document.getString("_id"));
+            season_id=document.getString("_id");
             results.add(season_id);
             regionCode=RegionTransform.getRegionCodeByName(MongoHelper.getDocumentValue(document,"typ[1]",String.class));
             results.add(regionCode);
@@ -100,8 +98,9 @@ public class MongoQqSeasonJob extends AbstractJob<FindIterable<Document>,String>
 
 
     public  static void  main(String[] args){
-
-        FileDataOutput fileDataOutput=new FileDataOutput();
+        String outPutPath="/tmp/manke/";
+        String fileName="t_qq_anime_season_info.csv";
+        FileDataOutput fileDataOutput=new FileDataOutput(outPutPath,fileName);
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoQqSeasonInfoInput mongoQqSeasonInfoInput=
                 new MongoQqSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("qq_sessioninfo_animes"));

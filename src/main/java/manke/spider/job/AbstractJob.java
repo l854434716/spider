@@ -1,10 +1,9 @@
-package manke.spider.Job;
+package manke.spider.job;
 
 import manke.spider.input.DataInput;
 import manke.spider.output.DataOutput;
 
 import java.util.Properties;
-import java.util.Vector;
 
 /**
  * Created by LENOVO on 2018/3/21.
