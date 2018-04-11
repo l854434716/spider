@@ -66,8 +66,8 @@ from (
       pub_time,bangumi_title,season_title,season_id,
       version,effective_date,expiry_date
     from bibi_season_dim
-    where  bibi_season_dim.season_sk in (
-     select  season_sk from manke_ods.t_dw_ods_bibi_season_tmp where season_sk is not null and  dim_isfinish==isfinish
+    where  bibi_season_dim.season_sk not in (
+     select  season_sk from manke_ods.t_dw_ods_bibi_season_tmp where season_sk is not null and  dim_isfinish!=isfinish
     )
 
 ) x ;
@@ -103,8 +103,8 @@ union all
     )
 union all
     select season_sk,badge,isfinish,title,pub_year,season_id,version,effective_date,expiry_date
-    from qq_season_dim where qq_season_dim.season_sk in (
-      select season_sk  from manke_ods.t_dw_ods_qq_season_tmp  where  season_sk is not null and  dim_isfinish=isfinish
+    from qq_season_dim where qq_season_dim.season_sk not in (
+      select season_sk  from manke_ods.t_dw_ods_qq_season_tmp  where  season_sk is not null and  dim_isfinish!=isfinish
     );
 
 --youku
@@ -155,8 +155,8 @@ insert overwrite table  youku_season_dim
          title,exclusive,pub_time,season_id,
          limit_age_up,limit_age_down,
          version,effective_date,expiry_date
-  from  youku_season_dim where   youku_season_dim.season_sk in (
-   select season_sk  from manke_ods.t_dw_ods_youku_season_tmp  where  season_sk is not null and  dim_isfinish=isfinish
+  from  youku_season_dim where   youku_season_dim.season_sk not  in (
+   select season_sk  from manke_ods.t_dw_ods_youku_season_tmp  where  season_sk is not null and  dim_isfinish!=isfinish
   );
 
 
