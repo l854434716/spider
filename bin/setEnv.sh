@@ -26,17 +26,11 @@ if [ ! -r "$UC_HOME"/bin/setEnv.sh ]; then
 fi
 
 # Set standard CLASSPATH
-CLASSPATH="$JAVA_HOME"/jre/lib:"$UC_HOME"/bin:"$UC_HOME"/conf:"$UC_HOME"/lib:"$UC_HOME"/classes:"$UC_HOME"/images:"$UC_HOME"/src
+CLASSPATH="$JAVA_HOME"/jre/lib:"$UC_HOME"/bin:"$UC_HOME"/conf:"$UC_HOME"/lib:"$UC_HOME"/classes
 
 # Append jars to CLASSPATH
 if [ -d "$UC_HOME"/lib ]; then
   for i in "$UC_HOME"/lib/*.jar; do
-    CLASSPATH="$CLASSPATH":"$i"
-  done
-fi
-
-if [ -d "$UC_HOME"/lib/cdh5.5.1 ]; then
-  for i in "$UC_HOME"/lib/cdh5.5.1/*.jar; do
     CLASSPATH="$CLASSPATH":"$i"
   done
 fi

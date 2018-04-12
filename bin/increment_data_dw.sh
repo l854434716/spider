@@ -4,7 +4,7 @@
 base_dir=$(dirname $0)
 day=`date "+%Y-%m-%d"`
 
-hive  -f  $base_dir/../sql/hive_increment_load_ods.sql
+hive -hivever day="${day}" -f  $base_dir/../sql/hive_increment_load_ods.sql
 hive  -f  $base_dir/../sql/hive_increment_dim_etl.sql
 
 hive -hivever day="${day}" -f  $base_dir/../sql/hive_increment_fact_etl.sql

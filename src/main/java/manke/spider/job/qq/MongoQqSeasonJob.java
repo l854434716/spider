@@ -13,9 +13,11 @@ import manke.spider.transform.RegionTransform;
 import manke.spider.transform.TextTransform;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -98,7 +100,7 @@ public class MongoQqSeasonJob extends AbstractJob<FindIterable<Document>,String>
 
 
     public  static void  main(String[] args){
-        String outPutPath="/tmp/manke/";
+        String outPutPath="/tmp/manke/qq_anime_season/"+ DateFormatUtils.format(new Date(),"yyyy-MM-dd")+"/";
         String fileName="t_qq_anime_season_info.csv";
         FileDataOutput fileDataOutput=new FileDataOutput(outPutPath,fileName);
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();

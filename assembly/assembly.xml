@@ -36,11 +36,17 @@
 
 		<fileSet>
 			<directory>conf</directory>
-			<excludes>
-				<exclude>flumejobsmanual/*.properties*</exclude>
-				<exclude>hbase/hbase-site.xml</exclude>
-			</excludes>
 			<outputDirectory>conf</outputDirectory>
+		</fileSet>
+
+		<fileSet>
+			<directory>data</directory>
+			<outputDirectory>data</outputDirectory>
+		</fileSet>
+
+		<fileSet>
+			<directory>sql</directory>
+			<outputDirectory>sql</outputDirectory>
 		</fileSet>
 
 		<fileSet>

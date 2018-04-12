@@ -30,7 +30,8 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
 
     public void process(Page page) {
 
-        //http://list.youku.com/category/show/c_100_s_1_d_2_p_1.html 索引页数据
+        //http://list.youku.com/category/sh
+        // ow/c_100_s_1_d_2_p_1.html 索引页数据
         if(StringUtils.contains(page.getRequest().getUrl(),"category")){
             doIndexPageProcessor(page);
         }else if (StringUtils.contains(page.getRequest().getUrl(),"list")){
@@ -38,7 +39,7 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
             doDetailPageProcessor(page);
         }else{
             /*http://v.youku.com/v_show/id_XODU2MTEyNjI4.html 从该url获取 番剧详细信息url*/
-            doPlayPageProcessor(page);
+            //doPlayPageProcessor(page);
         }
 
 
@@ -58,7 +59,7 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
                 for(Selectable li:season_li_list){
                     //进入番剧播放页
                     page.addTargetRequest(li.xpath("//div[@class='p-thumb']/a/@href").get());
-
+                    //logger.info("season url is {}",li.xpath("//div[@class='p-thumb']/a/@href").get());
                 }
             }
             //获取下一页url 继续爬取
@@ -80,7 +81,7 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
 
 
     private  void   doDetailPageProcessor(Page  page){
-
+        logger.info("doDetailPageProcessor  url is {}",page.getUrl().toString());
         //番剧详情html div 模块
         Selectable detail_div_selectable= page.getHtml().xpath("//div[@class='mod mod-new']/div[@class='mod fix']");
 
@@ -101,7 +102,12 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
 
         //番剧文字信息列
         List<Selectable> detail_base_li_selectables=detail_base_div_selectable.xpath("ul/li").nodes();
+        if (detail_base_li_selectables.size()<13){
 
+            page.setSkip(true);
+            logger.info("season_detail_info_miss url is {}",page.getUrl().toString());
+            return ;
+        }
         Selectable _li=null;
         String  _s=detail_base_li_selectables.get(3).xpath("span/label/@data-spm-anchor-id").get();
         if(StringUtils.isEmpty(detail_base_li_selectables.get(4).xpath("span/label/text()").get())){
@@ -211,7 +217,13 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
     private  void   doPlayPageProcessor(Page  page){
 
         try {
-            page.addTargetRequest(page.getHtml().xpath("//a[@class='desc-link']/@href").get());
+            String  tagurl=page.getHtml().xpath("//div[@class='title-wrap']/h1/span[1]/a/@href").get();
+           if (tagurl==null){
+               page.addTargetRequest(page.getUrl().toString());
+           }else{
+               page.addTargetRequest(tagurl);
+               logger.info("{} get detail page url is {}",page.getUrl().toString(),tagurl);
+           }
             page.setSkip(true);
         }catch (Exception e){
             logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
@@ -221,7 +233,7 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
 
     public static void main(String[] args) {
         Spider.create(new YoukuAnimeIndexPageProcessor())
-                .addUrl("http://list.youku.com/category/show/c_100_pt_0_s_1_d_2.html")
+                .addUrl("http://list.youku.com/category/show/c_100_pt_0_s_1_d_1.html")
                 .addPipeline(new YoukuAnimeSessionInfoPipeline())
                 .thread(10).run();
     }
