@@ -39,7 +39,7 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
             doDetailPageProcessor(page);
         }else{
             /*http://v.youku.com/v_show/id_XODU2MTEyNjI4.html 从该url获取 番剧详细信息url*/
-            //doPlayPageProcessor(page);
+            doPlayPageProcessor(page);
         }
 
 
@@ -59,7 +59,7 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
                 for(Selectable li:season_li_list){
                     //进入番剧播放页
                     page.addTargetRequest(li.xpath("//div[@class='p-thumb']/a/@href").get());
-                    //logger.info("season url is {}",li.xpath("//div[@class='p-thumb']/a/@href").get());
+                    logger.info("season url is {}",li.xpath("//div[@class='p-thumb']/a/@href").get());
                 }
             }
             //获取下一页url 继续爬取

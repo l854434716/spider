@@ -60,6 +60,10 @@ public class MongoQqSeasonJob extends AbstractJob<FindIterable<Document>,String>
 
             Document document= resultCursor.next();
 
+            if (StringUtils.isEmpty(document.get("c",Document.class).getString("pic"))){
+                //剔除无效数据
+                continue;
+            }
             badge=document.getString("mark_v");
             results.add(badge);
 
@@ -79,6 +83,7 @@ public class MongoQqSeasonJob extends AbstractJob<FindIterable<Document>,String>
 
             play_count=NumberUtils.toLong(TextTransform.parsePlayCount(document.getString("play_count")));//1
             results.add(play_count);
+
             pub_time=document.get("c",Document.class).getString("year");
             results.add(pub_time);
 

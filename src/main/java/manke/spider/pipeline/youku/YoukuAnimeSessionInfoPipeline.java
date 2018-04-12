@@ -40,7 +40,7 @@ public class YoukuAnimeSessionInfoPipeline extends AbstractMongodbPipeline imple
 
             try{
                 MongoDatabase mongoDatabase = mongoClient.getDatabase("spider");
-                MongoCollection<Document> collection=mongoDatabase.getCollection("youku_sessioninfo_animes1");
+                MongoCollection<Document> collection=mongoDatabase.getCollection("youku_sessioninfo_animes");
 
                 Document document=new Document();
                 document.put("_id",season_info_kv.get(YoukuConstant.SEASON_ID));
