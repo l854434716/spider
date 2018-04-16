@@ -2,8 +2,6 @@ use  manke_dw;
 --增量装载数据并更新维度表
 
 --维度表sd1 与 sd2 更新
-
-set  hivevar:cur_date=current_date();
 set  hivevar:max_date=cast('2030-04-07' as  date);
 -- bibi
 --1.设置删除和isfinised 列上的过期时间

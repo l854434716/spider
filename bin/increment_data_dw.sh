@@ -4,9 +4,8 @@
 base_dir=$(dirname $0)
 day=`date "+%Y-%m-%d"`
 
-hive -hivever day="${day}" -f  $base_dir/../sql/hive_increment_load_ods.sql
-hive  -f  $base_dir/../sql/hive_increment_dim_etl.sql
+hive -hivevar day="${day}" -f  $base_dir/../sql/hive_increment_load_ods.sql
 
-hive -hivever day="${day}" -f  $base_dir/../sql/hive_increment_fact_etl.sql
+hive -hivevar cur_date="${day}" -f  $base_dir/../sql/hive_increment_dim_etl.sql
 
-echo "${day} increment data2dw task run done" >>$base_dir/../log/shell_task.log
+hive -hivevar cur_date="${day}" -f  $base_dir/../sql/hive_increment_fact_etl.sql
