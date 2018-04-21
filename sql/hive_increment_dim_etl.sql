@@ -2,6 +2,7 @@ use  manke_dw;
 --增量装载数据并更新维度表
 
 --维度表sd1 与 sd2 更新
+set  hivevar:cur_date=cast('${day}' as  date);
 set  hivevar:max_date=cast('2030-04-07' as  date);
 -- bibi
 --1.设置删除和isfinised 列上的过期时间
@@ -121,7 +122,10 @@ select  *  from  youku_season_dim  where  effective_date<${max_date};
 --2.更新 scd2
 insert  into youku_season_dim
 select  row_number()  over  (order  by  t1.season_id) +sk_max,
-        t1.*
+        t1.articulation,t1.edition,t1.badge,t1.screen_time,t1.isfinish,
+        t1.title,t1.exclusive,t1.pub_time,t1.season_id,
+        t1.limit_age_up,t1.limit_age_down,
+        t1.version,t1.effective_date,t1.expiry_date
 from (
   select  t_ods.*,
           t_dim.version +1  version,
@@ -135,8 +139,11 @@ from (
 ) t1  cross  join   (select  coalesce(max(season_sk),0) sk_max  from  youku_season_dim) t2;
 
 --3.处理新增数据
+insert  into youku_season_dim
 select  row_number()  over  (order  by  t1.season_id) +sk_max,
-         t1.*,
+         t1.articulation,t1.edition,t1.badge,t1.screen_time,t1.isfinish,
+         t1.title,t1.exclusive,t1.pub_time,t1.season_id,
+         t1.limit_age_up,t1.limit_age_down,
          1 version,${cur_date}  effective_date,${max_date}  expiry_date
 from(
     select  t_ods.*  from   manke_ods.t_ods_youku_anime_season_info  t_ods
