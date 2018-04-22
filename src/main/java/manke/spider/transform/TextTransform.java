@@ -40,6 +40,10 @@ public class TextTransform {
         if (StringUtils.containsAny(play_count,'：',',')){
 
             play_count=TextTransform.removeTextComma(TextTransform.gainStrAfterChColon(play_count));
+
+            if (StringUtils.isNumeric(play_count)){
+                return  play_count;
+            }
         }
 
         if (StringUtils.contains(play_count,"万")){
@@ -51,6 +55,7 @@ public class TextTransform {
 
             return StringUtils.replace(play_count,"亿","00000000");
         }
+
 
         return  "0";
 
