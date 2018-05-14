@@ -79,9 +79,9 @@ from (
           t_dim.version+1 version,
           ${cur_date}  effective_date,${max_date} expiry_date
   from
-  (select  version ,season_id  from  qq_season_dim  where  effective_date=${cur_date}) t_dim
+  (select  version ,season_id  from  qq_season_dim  where  expiry_date=${cur_date}) t_dim
   inner join  manke_ods.t_ods_qq_anime_season_info  t_ods on (t_dim.season_id=t_ods.season_id)
-  left  join  qq_season_dim  t_dim1  on (t_dim.season_id=t_dim1.season_id  and t_dim1.effective_date=${max_date} )
+  left  join  qq_season_dim  t_dim1  on (t_dim.season_id=t_dim1.season_id  and t_dim1.expiry_date=${max_date} )
   where  t_dim1.season_sk is   null
 ) t1  cross  join   (select  coalesce (max(season_sk),0) sk_max from qq_season_dim) t2 ;
 
@@ -112,10 +112,10 @@ select  season_sk,t_dim.articulation,t_dim.edition,
              else  t_dim.expiry_date
         end expiry_date
 from
-(select * from  youku_season_dim  where   effective_date=${max_date}  ) t_dim
+(select * from  youku_season_dim  where   expiry_date=${max_date}  ) t_dim
 left  join  manke_ods.t_ods_youku_anime_season_info  t_ods  on (t_dim.season_id=t_ods.season_id)
 union all
-select  *  from  youku_season_dim  where  effective_date<${max_date};
+select  *  from  youku_season_dim  where  expiry_date<${max_date};
 
 
 
@@ -131,9 +131,9 @@ from (
           t_dim.version +1  version,
           ${cur_date}  effective_date,${max_date} expiry_date
  from
- (select version ,season_id from  youku_season_dim  where  effective_date=${cur_date} ) t_dim
+ (select version ,season_id from  youku_season_dim  where  expiry_date=${cur_date} ) t_dim
  inner  join  manke_ods.t_ods_youku_anime_season_info  t_ods  on (t_dim.season_id=t_ods.season_id)
- left  join  youku_season_dim  t_dim1 on  (t_dim1.season_id=t_dim.season_id)
+ left  join  youku_season_dim  t_dim1 on  (t_dim1.season_id=t_dim.season_id and t_dim1.expiry_date=${max_date})
  where  t_dim1.season_sk is  null
 
 ) t1  cross  join   (select  coalesce(max(season_sk),0) sk_max  from  youku_season_dim) t2;
