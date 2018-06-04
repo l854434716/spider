@@ -252,3 +252,35 @@ create  table  youku_season_watch_fact(
 partitioned by (day string)
 clustered by  (season_sk)  into  8 buckets
 stored  as  orc;
+
+
+-- season type associate table  add by  luozhi   date  2018.06.04
+
+drop  table  if exists  bibi_season_type_associate;
+
+create table  bibi_season_type_associate(
+     season_id  int  comment  'sesason id',
+     type_sk  int    comment 'season type sk'
+
+)comment 'bibi season type associate table'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+
+
+drop  table  if exists  qq_season_type_associate;
+
+create table  qq_season_type_associate(
+     season_id  varchar(30)  comment  'sesason id',
+     type_sk  int    comment 'season type sk'
+
+)comment 'qq season type associate table'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+
+
+drop  table  if exists  youku_season_type_associate;
+
+create table  youku_season_type_associate(
+     season_id  varchar(30)  comment  'sesason id',
+     type_sk  int    comment 'season type sk'
+
+)comment 'youku season type associate table'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';

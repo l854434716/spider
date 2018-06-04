@@ -50,8 +50,9 @@ public class MongoYoukuTypesJob extends AbstractJob<FindIterable<Document>,Strin
 
 
     public  static void  main(String[] args){
-
-        FileDataOutput fileDataOutput=new FileDataOutput();
+        String  basePath=System.getProperty("base.dir");
+        String  path=basePath+"/data/season_type/youku/";
+        FileDataOutput fileDataOutput=new FileDataOutput(path,"result.csv");
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoYoukuTypesInput mongoYoukuTypesInput=
                 new MongoYoukuTypesInput(mongoClient.getDatabase("spider").getCollection("youku_sessioninfo_animes"));

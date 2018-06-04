@@ -64,7 +64,9 @@ public class MongoQqTypesJob extends AbstractJob<FindIterable<Document>,String> 
 
     public  static void  main(String[] args){
 
-        FileDataOutput fileDataOutput=new FileDataOutput();
+        String  basePath=System.getProperty("base.dir");
+        String  path=basePath+"/data/season_type/qq/";
+        FileDataOutput fileDataOutput=new FileDataOutput(path,"result.csv");
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoQqTypesInput mongoQqTypesInput=
                 new MongoQqTypesInput(mongoClient.getDatabase("spider").getCollection("qq_sessioninfo_animes"));

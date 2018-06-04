@@ -15,7 +15,7 @@ import org.bson.Document;
 import java.util.ArrayList;
 
 /**
- * Created by LENOVO on 2018/3/21.
+ * Created by zhiluo on 2018/3/21.
  */
 public class MongoBibiTypesJob extends AbstractJob<FindIterable<Document>,String> {
 
@@ -54,8 +54,9 @@ public class MongoBibiTypesJob extends AbstractJob<FindIterable<Document>,String
 
 
     public  static void  main(String[] args){
-
-        FileDataOutput fileDataOutput=new FileDataOutput();
+        String  basePath=System.getProperty("base.dir");
+        String  path=basePath+"/data/season_type/bibi/";
+        FileDataOutput fileDataOutput=new FileDataOutput(path,"result.csv");
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoBibiTypesInput mongoBibiTypesInput=
                 new MongoBibiTypesInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes"));

@@ -9,3 +9,5 @@ hive -hivevar day="${day}" -f  $base_dir/../sql/hive_increment_load_ods.sql
 hive -hivevar day="${day}" -f  $base_dir/../sql/hive_increment_dim_etl.sql
 
 hive -hivevar day="${day}" -f  $base_dir/../sql/hive_increment_fact_etl.sql
+
+hive  -f  $base_dir/../sql/hive_increment_load_season_types.sql
