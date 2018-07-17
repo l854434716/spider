@@ -9,12 +9,12 @@ use  manke_ods;
 
 drop  table  if  exists  t_ods_date ;
 CREATE  TABLE t_ods_date (
-  day date  COMMENT 'date,yyyy-mm-dd',
+  day_col date  COMMENT 'date,yyyy-mm-dd',
   weekofyear tinyint  COMMENT '一年的第几周',
-  month tinyint COMMENT '一年的第几月',
+  month_col tinyint COMMENT '一年的第几月',
   month_name  varchar(9)  COMMENT 'month name',
   quarter tinyint  COMMENT '季度',
-  year smallint  COMMENT 'year'
+  year_col smallint  COMMENT 'year'
 ) COMMENT '时间表'
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
 
@@ -107,12 +107,12 @@ use manke_dw;
 drop  table  if  exists  t_date_dim;
 CREATE  TABLE t_date_dim (
   date_sk  int  COMMENT 'surrogate key',
-  day date  COMMENT 'date,yyyy-mm-dd',
+  day_col date  COMMENT 'date,yyyy-mm-dd',
   weekofyear tinyint  COMMENT '一年的第几周',
-  month tinyint COMMENT '一年的第几月',
+  month_col tinyint COMMENT '一年的第几月',
   month_name  varchar(9)  COMMENT 'month name',
   quarter tinyint  COMMENT '季度',
-  year smallint  COMMENT 'year'
+  year_col smallint  COMMENT 'year'
 ) COMMENT '时间维度表'
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
 

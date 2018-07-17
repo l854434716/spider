@@ -1,6 +1,5 @@
 package manke.spider.processor.bibi;
 
-import manke.spider.pipeline.bibi.BibiAnimeIndexPipeline;
 import manke.spider.pipeline.bibi.BibiAnimeSessionInfoPipeline;
 import manke.spider.processor.AbstractPageProcessor;
 import org.apache.commons.lang3.StringUtils;
@@ -30,14 +29,11 @@ public class BibiAnimeIndexPageProcessor extends AbstractPageProcessor {
         //http://bangumi.bilibili.com/web_api/season/index_global?page=0 索引页数据
         if(StringUtils.contains(page.getRequest().getUrl(),"index_global")){
 
-            List<String> bibiIndexGlobalSeasonJsonStrList=null;
-
             try {
                 //数据转换出错或者数据来源url 是其他页面
-                bibiIndexGlobalSeasonJsonStrList=page.getJson().jsonPath("$.result.list[*]").all();
-                page.putField(BibiAnimeIndexPipeline.bibiIndexGlobalSeasonJsonStrList,bibiIndexGlobalSeasonJsonStrList);
                 List<String>  sessionIds=page.getJson().jsonPath("$.result.list[*].season_id").all();
                 List<String>  animeDetailUrls=convertSessionIds2Urls(sessionIds);
+                page.setSkip(true);
                 if (animeDetailUrls!=null)
                    page.addTargetRequests(animeDetailUrls);
             }catch (Exception e){
@@ -51,14 +47,12 @@ public class BibiAnimeIndexPageProcessor extends AbstractPageProcessor {
         //https://bangumi.bilibili.com/web_api/season/index_cn?page=0  国漫索引页数据
         if(StringUtils.contains(page.getRequest().getUrl(),"index_cn")){
 
-            List<String> bibiIndexCnSeasonJsonStrList=null;
 
             try {
                 //数据转换出错或者数据来源url 是其他页面
-                bibiIndexCnSeasonJsonStrList=page.getJson().jsonPath("$.result.list[*]").all();
-                page.putField(BibiAnimeIndexPipeline.bibiIndexGlobalSeasonJsonStrList,bibiIndexCnSeasonJsonStrList);
                 List<String>  sessionIds=page.getJson().jsonPath("$.result.list[*].season_id").all();
                 List<String> animeDetailUrls=convertSessionIds2Urls(sessionIds);
+                page.setSkip(true);
                 if (animeDetailUrls!=null)
                     page.addTargetRequests(animeDetailUrls);
             }catch (Exception e){
