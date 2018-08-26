@@ -67,3 +67,7 @@ select season_sk,region_sk,date_sk,score,play_count,comment_num
 from  manke_ods.t_ods_youku_anime_season_info t_ods , youku_season_dim , t_date_dim ,t_anime_region_dim
 where t_ods.season_id=youku_season_dim.season_id and t_ods.region_code=t_anime_region_dim.code
       and t_date_dim.day_col=${hivevar:cur_date};
+
+load  data local inpath './../data/season_type/bibi/'overwrite into table bibi_season_type_associate;
+load  data local inpath './../data/season_type/qq/' overwrite  into table qq_season_type_associate;
+load  data local inpath './../data/season_type/youku/' overwrite into table youku_season_type_associate;
