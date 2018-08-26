@@ -123,8 +123,14 @@ public class MongoYoukuSeasonJob extends AbstractJob<FindIterable<Document>,Stri
             range_of_application=StringUtils.substringAfter(range_of_application,"：");
             if (StringUtils.contains(range_of_application,"到")){
                 range_of_applications=StringUtils.split(range_of_application,"到");
-                limit_age_down=Integer.parseInt(range_of_applications[0]);
-                limit_age_up=Integer.parseInt(range_of_applications[1]);
+                if (StringUtils.isNumeric(range_of_applications[0]))
+                    limit_age_down=Integer.parseInt(range_of_applications[0]);
+                else
+                    limit_age_down=0;
+                if (StringUtils.isNumeric(range_of_applications[1]))
+                    limit_age_up=Integer.parseInt(range_of_applications[1]);
+                else
+                    limit_age_up=0;
             }else if(StringUtils.contains(range_of_application,"以上")){
                 limit_age_down=Integer.parseInt(StringUtils.substringBefore(range_of_application,"以上"));
                 limit_age_up=0;
