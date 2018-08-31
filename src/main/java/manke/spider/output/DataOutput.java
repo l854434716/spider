@@ -8,4 +8,7 @@ import manke.spider.job.Configurable;
 public interface DataOutput<T> extends Configurable {
 
     void  output(T t);
+
+
+    void  close();
 }

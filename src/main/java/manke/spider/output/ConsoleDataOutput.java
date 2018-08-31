@@ -16,4 +16,9 @@ public class ConsoleDataOutput implements  DataOutput<String> {
 
         System.out.println(s);
     }
+
+    @Override
+    public void close() {
+
+    }
 }
