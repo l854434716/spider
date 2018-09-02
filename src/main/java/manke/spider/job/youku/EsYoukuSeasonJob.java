@@ -1,19 +1,18 @@
-package manke.spider.job.bibi;
+package manke.spider.job.youku;
 
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import manke.spider.input.bibi.MongoBibiSeasonInfoInput;
+import manke.spider.input.youku.MongoYoukuSeasonInfoInput;
 import manke.spider.job.AbstractJob;
 import manke.spider.job.JobFactory;
 import manke.spider.model.es.AnimeActorModel;
 import manke.spider.model.es.AnimeNameStaffModel;
 import manke.spider.mongo.MongoClinetSingleton;
 import manke.spider.output.AnimeNameStaffESOutput;
-import manke.spider.output.ConsoleDataOutput;
 import manke.spider.output.DataOutput;
-import manke.spider.output.FileDataOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.bson.Document;
@@ -27,7 +26,7 @@ import java.util.ArrayList;
  *
  * 抽取番剧文本信息到ES中
  */
-public class EsBibiSeasonJob extends AbstractJob<FindIterable<Document>,AnimeNameStaffModel> {
+public class EsYoukuSeasonJob extends AbstractJob<FindIterable<Document>,AnimeNameStaffModel> {
 
     @Override
     public void etl() {
@@ -38,7 +37,7 @@ public class EsBibiSeasonJob extends AbstractJob<FindIterable<Document>,AnimeNam
 
 
         AnimeNameStaffModel  animeNameStaffModel;
-        ArrayList<Document>  raw_actors;
+        String  raw_actors;
         ArrayList<AnimeActorModel>  actors;
 
         AnimeActorModel animeActorModel;
@@ -47,30 +46,29 @@ public class EsBibiSeasonJob extends AbstractJob<FindIterable<Document>,AnimeNam
             Document document= resultCursor.next();
             animeNameStaffModel=new AnimeNameStaffModel();
 
-            animeNameStaffModel.setSeason_id(StringUtils.join(document.getString("season_id"),"BI"));
+            animeNameStaffModel.setSeason_id(document.getString("season_id"));
 
             animeNameStaffModel.setTitle(document.getString("title"));
 
             animeNameStaffModel
-                    .setAlias(Lists.newArrayList(StringUtils.split(document.getString("alias"),",")));
+                    .setAlias(Lists.newArrayList(StringUtils.split(document.getString("alias"),"/")));
 
 
 
-            raw_actors=document.get("actor",ArrayList.class);
+            raw_actors=document.getString("dubbeds");
             actors=Lists.newArrayList();
-            for (Document  actor:raw_actors){
+            for (String  actor:StringUtils.split(raw_actors,"/")){
                 animeActorModel= new AnimeActorModel();
-                animeActorModel.setActorName(actor.getString("actor"));
-                animeActorModel.setRole(actor.getString("role"));
+                animeActorModel.setActorName(actor);
                 actors.add(animeActorModel);
             }
 
             animeNameStaffModel.setActors(actors);
 
             animeNameStaffModel
-                    .setStaff(StringUtils.replaceChars(document.getString("staff"),'\n',' '));
+                    .setStaff(StringUtils.join("导演: ",document.getString("director")));
 
-            animeNameStaffModel.setOriginal_website("bilibili");
+            animeNameStaffModel.setOriginal_website("优酷");
             dataOutput.output(animeNameStaffModel);
 
 
@@ -88,10 +86,10 @@ public class EsBibiSeasonJob extends AbstractJob<FindIterable<Document>,AnimeNam
 
         DataOutput<AnimeNameStaffModel>  animeNameStaffESOutput=new AnimeNameStaffESOutput(restClientBuilder);
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
-        MongoBibiSeasonInfoInput mongoBibiSeasonInfoInput=
-                new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes"));
+        MongoYoukuSeasonInfoInput mongoYoukuSeasonInfoInput=
+                new MongoYoukuSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("youku_sessioninfo_animes"));
         JobFactory
-                .createJob(EsBibiSeasonJob.class,mongoBibiSeasonInfoInput,animeNameStaffESOutput,null).start();
+                .createJob(EsYoukuSeasonJob.class,mongoYoukuSeasonInfoInput,animeNameStaffESOutput,null).start();
 
         animeNameStaffESOutput.close();
     }

@@ -1,12 +1,15 @@
 package manke.spider.output;
 
+import com.google.gson.Gson;
 import manke.spider.model.es.AnimeNameStaffModel;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,23 +68,19 @@ public class AnimeNameStaffESOutput  extends   AbstractESRestOutput<AnimeNameSta
     }
 
 
-    Map<String,Object> _sourceMap;
-
+    private final Gson  gson= new  Gson();
     /**
      * create a .
      *
      * @param animeNameStaffModel the AnimeNameStaffModel
      */
     private IndexRequest createIndexRequest(AnimeNameStaffModel animeNameStaffModel){
-        _sourceMap= new HashMap<String, Object>();
-
-        _sourceMap.put("season_id", animeNameStaffModel.getSeason_id());
-        _sourceMap.put("title", animeNameStaffModel.getTitle());
-        _sourceMap.put("alias", animeNameStaffModel.getAlias());
-        _sourceMap.put("actors", animeNameStaffModel.getActors());
-        _sourceMap.put("staff", animeNameStaffModel.getStaff());
-
-        return Requests.indexRequest("anime_name_staff").id(animeNameStaffModel.getSeason_id()).type("AnimeNameStaffModel").source(_sourceMap);
+        return Requests
+                .indexRequest("anime_name_staff")
+                .id(animeNameStaffModel.getSeason_id())
+                .type("AnimeNameStaffModel")
+                .opType(DocWriteRequest.OpType.INDEX)
+                .source(gson.toJson(animeNameStaffModel),XContentType.JSON);
 
     }
 
