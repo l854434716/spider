@@ -174,6 +174,28 @@ clustered by  (season_sk)  into  8 buckets
 stored  as  orc;
 
 
+
+drop table  if  exists   bibi_season_daily_watch_fact;
+
+create table bibi_season_daily_watch_fact (
+
+    season_sk  int comment 'season surrogate key',
+
+    region_sk int  COMMENT 'region surrogate key',
+
+    date_sk  int  COMMENT 'date surrogate key',
+    `coins` int   COMMENT '番剧硬币个数',
+    `danmaku_count` int  COMMENT '弹幕个数',
+    `favorites` int COMMENT '喜爱人数',
+    `score` float   COMMENT '评分',
+    `score_critic_num` int   COMMENT '评分人数',
+    `play_count` bigint    COMMENT '播放次数'
+)comment 'bibi_season_daily_watch_fact  table '
+partitioned by (y SMALLINT  comment 'year',m TINYINT  comment 'month',d TINYINT  comment 'day')
+clustered by  (season_sk)  into  5 buckets
+stored  as  orc;
+
+
 drop table  if  exists   qq_season_dim;
 create  table  qq_season_dim(
     season_sk  int comment 'surrogate key',
@@ -208,6 +230,25 @@ partitioned by (day string)
 clustered by  (season_sk)  into  8 buckets
 stored  as  orc;
 
+
+
+drop  table  if  exists  qq_season_daily_watch_fact;
+
+create  table  qq_season_daily_watch_fact(
+    season_sk  int comment 'surrogate key',
+
+    region_sk int  COMMENT 'region surrogate key',
+
+    date_sk  int  COMMENT 'date surrogate key',
+
+    `score` float   COMMENT '评分',
+
+    `play_count` bigint    COMMENT '播放次数'
+
+)comment 'qq_season_daily_watch_fact  table '
+partitioned by (y SMALLINT  comment 'year',m TINYINT  comment 'month',d TINYINT  comment 'day')
+clustered by  (season_sk)  into  5 buckets
+stored  as  orc;
 
 
 drop table  if  exists   youku_season_dim;
@@ -253,6 +294,26 @@ partitioned by (day string)
 clustered by  (season_sk)  into  8 buckets
 stored  as  orc;
 
+
+drop  table  if  exists  youku_season_daily_watch_fact;
+
+create  table  youku_season_daily_watch_fact(
+    season_sk  int comment 'surrogate key',
+
+    region_sk int  COMMENT 'region surrogate key',
+
+    date_sk  int  COMMENT 'date surrogate key',
+
+   `score` float   COMMENT '评分',
+
+   `play_count` bigint   COMMENT '播放次数',
+
+   `comment_num` bigint   COMMENT '评论个数'
+
+)comment 'youku_season_daily_watch_fact  table'
+partitioned by (y SMALLINT  comment 'year',m TINYINT  comment 'month',d TINYINT  comment 'day')
+clustered by  (season_sk)  into  5 buckets
+stored  as  orc;
 
 -- season type associate table  add by  luozhi   date  2018.06.04
 
