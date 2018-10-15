@@ -13,7 +13,4 @@ hive -hivevar day="${day}" -f  $base_dir/../sql/hive_increment_fact_etl.sql
 
 hive  -f  $base_dir/../sql/hive_increment_load_season_types.sql
 
-_year=`date "+%Y"`
-_month=`date "+%m"`
-_day=`date "+%d"`
-hive -hivevar year="${_year}" -hivevar month="${_month}"  -hivevar day="${_day}"  -f  $base_dir/../sql/hive_increment_daily_fact_etl.sql
+hive -hivevar day="${day}"  -f  $base_dir/../sql/hive_increment_daily_fact_etl.sql

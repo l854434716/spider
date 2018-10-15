@@ -191,7 +191,7 @@ create table bibi_season_daily_watch_fact (
     `score_critic_num` int   COMMENT '评分人数',
     `play_count` bigint    COMMENT '播放次数'
 )comment 'bibi_season_daily_watch_fact  table '
-partitioned by (y SMALLINT  comment 'year',m TINYINT  comment 'month',d TINYINT  comment 'day')
+partitioned by (day string)
 clustered by  (season_sk)  into  5 buckets
 stored  as  orc;
 
@@ -246,7 +246,7 @@ create  table  qq_season_daily_watch_fact(
     `play_count` bigint    COMMENT '播放次数'
 
 )comment 'qq_season_daily_watch_fact  table '
-partitioned by (y SMALLINT  comment 'year',m TINYINT  comment 'month',d TINYINT  comment 'day')
+partitioned by (day string)
 clustered by  (season_sk)  into  5 buckets
 stored  as  orc;
 
@@ -311,7 +311,7 @@ create  table  youku_season_daily_watch_fact(
    `comment_num` bigint   COMMENT '评论个数'
 
 )comment 'youku_season_daily_watch_fact  table'
-partitioned by (y SMALLINT  comment 'year',m TINYINT  comment 'month',d TINYINT  comment 'day')
+partitioned by (day string)
 clustered by  (season_sk)  into  5 buckets
 stored  as  orc;
 
