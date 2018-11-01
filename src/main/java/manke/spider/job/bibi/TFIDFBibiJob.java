@@ -59,15 +59,19 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
                     outPutResult=actor.getString("actor");
             }
 //  staff  save
-            staff=StringUtils.replaceChars(document.getString("staff"),'\n',' ');
+            staff=StringUtils.remove(document.getString("staff"),'\r');
+            staff=StringUtils.replaceChars(staff,'\n','$');
+            staff=StringUtils.replaceChars(staff,':','$');
+            staff=StringUtils.replaceChars(staff,'：','$');
+            staff=StringUtils.removeEnd(staff,"$");
             if (StringUtils.isNotEmpty(staff)){
                 if (StringUtils.isNotEmpty(outPutResult))
                     outPutResult=StringUtils.join(outPutResult,dataSeparate,staff);
                 else
                     outPutResult=staff;
             }
-            String[]  _s=StringUtils.substringsBetween(staff,"：","\n");
-            if (StringUtils.isNotEmpty(outPutResult)){
+
+            if (StringUtils.isNotEmpty(staff)){
                 outPutResult=StringUtils.join(document.getString("season_id"),dataSeparate,staff);
                 dataOutput.output(outPutResult);
 
@@ -83,7 +87,7 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
 
     public  static void  main(String[] args){
 
-        FileDataOutput fileDataOutput=new FileDataOutput("E:/","tfidf.txt");
+        FileDataOutput fileDataOutput=new FileDataOutput("/Users/luozhi/Desktop/","tfidf.txt");
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoBibiSeasonInfoInput mongoBibiSeasonInfoInput=
                 new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes"));
