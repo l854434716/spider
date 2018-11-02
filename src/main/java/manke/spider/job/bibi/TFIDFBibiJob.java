@@ -14,10 +14,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
 
-    private   final  static    String    dataSeparate="|";
+    private   final  static    String    dataSeparate=",";
     @Override
     public void etl() {
 
@@ -64,15 +66,32 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
             staff=StringUtils.replaceChars(staff,':','$');
             staff=StringUtils.replaceChars(staff,'：','$');
             staff=StringUtils.removeEnd(staff,"$");
+            staff=StringUtils.replaceChars(staff,'、',',');
+            staff=StringUtils.replaceChars(staff,'，',',');
+            staff=StringUtils.replaceChars(staff,'；',',');
             if (StringUtils.isNotEmpty(staff)){
+                String[]  content=StringUtils.split(staff,"$");
+                String   _s=null;
+                for(int i=0;i<content.length;i++){
+                    if (i%2!=0){
+                        if (_s!=null)
+                            _s=StringUtils.join(_s,",",StringUtils.trim(content[i]));
+                        else
+                            _s=StringUtils.trim(content[i]);
+                    }
+                }
+
+                if (StringUtils.contains(staff,"$"))
+                    staff=_s;
+
                 if (StringUtils.isNotEmpty(outPutResult))
                     outPutResult=StringUtils.join(outPutResult,dataSeparate,staff);
                 else
                     outPutResult=staff;
             }
 
-            if (StringUtils.isNotEmpty(staff)){
-                outPutResult=StringUtils.join(document.getString("season_id"),dataSeparate,staff);
+            if (StringUtils.isNotEmpty(outPutResult)){
+                outPutResult=StringUtils.join(document.getString("season_id"),"|",outPutResult);
                 dataOutput.output(outPutResult);
 
             }
@@ -83,11 +102,9 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
     }
 
 
-
-
     public  static void  main(String[] args){
 
-        FileDataOutput fileDataOutput=new FileDataOutput("/Users/luozhi/Desktop/","tfidf.txt");
+        FileDataOutput fileDataOutput=new FileDataOutput("/tmp/","tfidf.txt");
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoBibiSeasonInfoInput mongoBibiSeasonInfoInput=
                 new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes"));
