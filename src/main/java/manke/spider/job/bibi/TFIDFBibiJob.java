@@ -30,6 +30,7 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
         ArrayList<Document>  raw_actors;
         String  staff=null;
         String  outPutResult=null;
+        String  actorName=null;
         while(resultCursor.hasNext()){
             outPutResult=null;
             Document document= resultCursor.next();
@@ -52,13 +53,20 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
 
             raw_actors=document.get("actor",ArrayList.class);
             for (Document  actor:raw_actors){
-                if(StringUtils.isEmpty(actor.getString("actor"))){
+                actorName=actor.getString("actor");
+                if(StringUtils.isEmpty(actorName)){
                     continue;
                 }
+                actorName=StringUtils.remove(actorName,'\r');
+                actorName=StringUtils.remove(actorName,'\n');
+                actorName=StringUtils.replaceChars(actorName,'、',',');
+                actorName=StringUtils.replaceChars(actorName,'，',',');
+
                 if (StringUtils.isNotEmpty(outPutResult))
-                    outPutResult=StringUtils.join(outPutResult,dataSeparate,actor.getString("actor"));
+                    outPutResult=StringUtils
+                            .join(outPutResult,dataSeparate,actorName);
                 else
-                    outPutResult=actor.getString("actor");
+                    outPutResult=actorName;
             }
 //  staff  save
             staff=StringUtils.remove(document.getString("staff"),'\r');
