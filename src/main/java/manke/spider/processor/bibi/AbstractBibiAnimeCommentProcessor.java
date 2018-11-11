@@ -1,0 +1,61 @@
+package manke.spider.processor.bibi;
+
+import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Projections;
+import manke.spider.mongo.MongoClinetSingleton;
+import manke.spider.processor.AbstractPageProcessor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import us.codecraft.webmagic.Page;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract   class AbstractBibiAnimeCommentProcessor  extends AbstractPageProcessor {
+    private    static   Logger  logger= LoggerFactory.getLogger(AbstractBibiAnimeCommentProcessor.class);
+
+    private  static MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
+
+       final  static  String   commentURLPrefix="https://bangumi.bilibili.com/review/web_api/long/list?media_id=";
+
+       final  static   String commentURLSuffix ="&folded=0&page_size=20&sort=1";
+
+       final   static  String  commentURLSuffix1="&folded=1&page_size=20&sort=1";
+
+    public  static   List<String>  getCommentURls(){
+
+        MongoCollection<Document> collection=mongoClient
+                .getDatabase("spider").getCollection("bibi_sessioninfo_animes");
+
+        FindIterable<Document>  documents= collection
+                .find().projection(Projections
+                        .fields(Projections.include("media"),Projections.excludeId()));
+
+
+        MongoCursor<Document> resultCursor=documents.batchSize(1000).iterator();
+
+
+        List<String> urls=new ArrayList<String>();
+        while (resultCursor.hasNext()){
+
+            Document document= resultCursor.next();
+
+            urls.add(StringUtils.join(commentURLPrefix,document.getInteger("media_id"), commentURLSuffix));
+
+        }
+
+
+        return  urls;
+    }
+
+
+
+
+
+}
