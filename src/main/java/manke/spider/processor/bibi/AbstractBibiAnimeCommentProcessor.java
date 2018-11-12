@@ -28,6 +28,10 @@ public abstract   class AbstractBibiAnimeCommentProcessor  extends AbstractPageP
 
        final   static  String  commentURLSuffix1="&folded=1&page_size=20&sort=1";
 
+       final    static   String    commentDetailUrlSegemnt1="https://www.bilibili.com/bangumi/media/md";
+
+       final    static   String    commentDetailUrlSegemnt2="/review/ld";
+
     public  static   List<String>  getCommentURls(){
 
         MongoCollection<Document> collection=mongoClient
@@ -55,7 +59,29 @@ public abstract   class AbstractBibiAnimeCommentProcessor  extends AbstractPageP
     }
 
 
+    /**
+     * Create comment detail url string.
+     *
+     * @param media_id the media id
+     * @param reviewId the review id
+     * @return the string
+     */
+    protected   String   createCommentDetailUrl(String   media_id,String  reviewId){
 
+        return   StringUtils.join(commentDetailUrlSegemnt1,media_id,commentDetailUrlSegemnt2,reviewId);
+    }
+
+
+
+    protected   String   getMediaIdFromCommentDetailUrl(String  url ){
+
+        return   StringUtils.substringBetween(url,commentDetailUrlSegemnt1,commentDetailUrlSegemnt2);
+    }
+
+
+    protected    String    getReviewIdFromCommentDetailUrl(String  url){
+        return   StringUtils.substringAfterLast(url,commentDetailUrlSegemnt2);
+    }
 
 
 }
