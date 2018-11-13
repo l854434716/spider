@@ -2,6 +2,7 @@ package manke.spider.processor.bibi;
 
 import manke.spider.pipeline.bibi.BibiAnimeFullCommentPipeline;
 import manke.spider.pipeline.bibi.BibiAnimeSessionInfoPipeline;
+import manke.spider.transform.DateTransform;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -43,22 +44,6 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
 
         }
 
-        //https://bangumi.bilibili.com/jsonp/seasoninfo/5050.ver?callback=seasonListCallback
-        if(StringUtils.contains(page.getRequest().getUrl(),"seasonListCallback")){
-
-            String  bibiSeasoninfoJsonStr=null;
-
-            try {
-                //数据转换出错或者数据来源url 是其他页面
-                bibiSeasoninfoJsonStr=page.getJson().regex("result\":(.*)}\\)").toString();
-                page.putField(BibiAnimeSessionInfoPipeline.bibiSessionInfoJsonStr,bibiSeasoninfoJsonStr);
-            }catch (Exception e){
-                logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
-            }
-
-
-        }
-
 
     }
 
@@ -87,13 +72,20 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
                     logger.info("url {} is  oldest_incr ", url);
                 }
             }else{
-                ctimes=page.getJson().jsonPath("$.result.ctime").all();
+                ctimes=page.getJson().jsonPath("$.result.list[*].ctime").all();
                 for(String  ctime:ctimes){
                     if (determineCommentIsNewByCtime(ctime))  stopIndex++;
                 }
 
-                if (stopIndex==-1){//该页面所有数据已爬完
-
+                if (stopIndex==-1){//该页面所有数据已爬完,开始爬取折叠的数据
+                    folded_count_str=page.getJson().jsonPath("$.result.folded_count").get();
+                    if (NumberUtils.toInt(folded_count_str, -1)>0){//有必要爬取折叠数据
+                        nextUrl = StringUtils.split(url, '&')[0] + commentURLSuffix1;
+                        logger.info("begin spider_incr fold comment  previous url is {}  nextUrl is {}", url, nextUrl);
+                        page.addTargetRequest(nextUrl);
+                    }else{
+                        logger.info("url {} is  oldest_incr ", url);
+                    }
                 }else if (stopIndex==comments.size()-1){//还需要继续爬取下一页
                     page.putField("media_id",media_id);
                     List<String>  reviewIds=page.getJson().jsonPath("$.result.list[(*)].review_id").all();
@@ -123,6 +115,15 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
                     comments=page.getJson().jsonPath("$.result.list[:"+(stopIndex+1)+"]").all();
                     page.putField("comments", comments);
                     logger.info("spider_incr  incr {} comments  from the url {}", comments.size(),url);
+
+                    folded_count_str=page.getJson().jsonPath("$.result.folded_count").get();
+                    if (NumberUtils.toInt(folded_count_str, -1)>0){//有必要爬取折叠数据
+                        nextUrl = StringUtils.split(url, '&')[0] + commentURLSuffix1;
+                        logger.info("begin spider_incr fold comment  previous url is {}  nextUrl is {}", url, nextUrl);
+                        page.addTargetRequest(nextUrl);
+                    }else{
+                        logger.info("url {} is  oldest_incr ", url);
+                    }
                 }
 
             }
@@ -134,13 +135,13 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
             if (comments.size()==0){
                 logger.info("url {} is  oldest_incr ", url);
             }else{
-                ctimes=page.getJson().jsonPath("$.result.ctime").all();
+                ctimes=page.getJson().jsonPath("$.result.list[*].ctime").all();
                 for(String  ctime:ctimes){
                     if (determineCommentIsNewByCtime(ctime))  stopIndex++;
                 }
 
                 if (stopIndex==-1){//该页面所有数据已爬完
-
+                    logger.info("url {}  have no increment_data");
                 }else if (stopIndex==comments.size()-1){//还需要继续爬取下一页
                     page.putField("media_id",media_id);
                     List<String>  reviewIds=page.getJson().jsonPath("$.result.list[(*)].review_id").all();
@@ -178,8 +179,10 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
 
 
     //判定当前评论是否是新增评论，策略是通过评论的ctime时间与前一天的0点0分0秒时间戳做对比
+    private   static  final   long   currentTime=System.currentTimeMillis();
     private boolean determineCommentIsNewByCtime(String ctime) {
 
+        return  DateTransform.getDayFirstTimeMills(currentTime,-1)<NumberUtils.toLong(StringUtils.join(ctime,"000"));
     }
 
 
@@ -203,12 +206,12 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
 
         //spider.addUrl("https://bangumi.bilibili.com/review/web_api/long/list?media_id=5997&folded=0&page_size=20&sort=1");
         //spider.addUrl("https://www.bilibili.com/bangumi/media/md102392/review/ld40967");
-        /*for (String  url:getCommentURls()){
-
+        //spider.addUrl("https://bangumi.bilibili.com/review/web_api/long/list?media_id=5997&folded=0&page_size=20&sort=1");
+        for (String  url:getCommentURls()){
             spider.addUrl(url);
-        }*/
+        }
 
-        spider.thread(1).run();
+        spider.thread(10).run();
 
     }
 }

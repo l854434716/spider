@@ -6,6 +6,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Projections;
 import manke.spider.mongo.MongoClinetSingleton;
+import manke.spider.mongo.MongoHelper;
 import manke.spider.processor.AbstractPageProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -38,8 +39,7 @@ public abstract   class AbstractBibiAnimeCommentProcessor  extends AbstractPageP
                 .getDatabase("spider").getCollection("bibi_sessioninfo_animes");
 
         FindIterable<Document>  documents= collection
-                .find().projection(Projections
-                        .fields(Projections.include("media"),Projections.excludeId()));
+                .find().projection(Projections.fields(Projections.include("media"),Projections.excludeId()));
 
 
         MongoCursor<Document> resultCursor=documents.batchSize(1000).iterator();
@@ -49,8 +49,7 @@ public abstract   class AbstractBibiAnimeCommentProcessor  extends AbstractPageP
         while (resultCursor.hasNext()){
 
             Document document= resultCursor.next();
-
-            urls.add(StringUtils.join(commentURLPrefix,document.getInteger("media_id"), commentURLSuffix));
+            urls.add(StringUtils.join(commentURLPrefix,MongoHelper.getDocumentValue(document,"media.media_id",Integer.class), commentURLSuffix));
 
         }
 
