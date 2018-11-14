@@ -48,22 +48,6 @@ public class BibiAnimeFullCommentProcessor extends AbstractBibiAnimeCommentProce
 
         }
 
-        //https://bangumi.bilibili.com/jsonp/seasoninfo/5050.ver?callback=seasonListCallback
-        if(StringUtils.contains(page.getRequest().getUrl(),"seasonListCallback")){
-
-            String  bibiSeasoninfoJsonStr=null;
-
-            try {
-                //数据转换出错或者数据来源url 是其他页面
-                bibiSeasoninfoJsonStr=page.getJson().regex("result\":(.*)}\\)").toString();
-                page.putField(BibiAnimeSessionInfoPipeline.bibiSessionInfoJsonStr,bibiSeasoninfoJsonStr);
-            }catch (Exception e){
-                logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
-            }
-
-
-        }
-
 
     }
 
@@ -104,7 +88,7 @@ public class BibiAnimeFullCommentProcessor extends AbstractBibiAnimeCommentProce
             }
         } else {
             page.putField("media_id",media_id);
-            List<String>  reviewIds=page.getJson().jsonPath("$.result.list[(*)].review_id").all();
+            List<String>  reviewIds=page.getJson().jsonPath("$.result.list[*].review_id").all();
             for (String   reviewId:reviewIds){
                 detailCommentUrl=createCommentDetailUrl(media_id,reviewId);
                 page.addTargetRequest(detailCommentUrl);
@@ -142,15 +126,15 @@ public class BibiAnimeFullCommentProcessor extends AbstractBibiAnimeCommentProce
 
         Spider   spider= Spider.create(new BibiAnimeFullCommentProcessor())
                         .addPipeline(new BibiAnimeFullCommentPipeline());
-
-        //spider.addUrl("https://bangumi.bilibili.com/review/web_api/long/list?media_id=5997&folded=0&page_size=20&sort=1");
+        //spider.addUrl("https://bangumi.bilibili.com/review/web_api/long/list?media_id=3419&folded=0&page_size=20&sort=1");
         //spider.addUrl("https://www.bilibili.com/bangumi/media/md102392/review/ld40967");
-        /*for (String  url:getCommentURls()){
+        for (String  url:getCommentURls()){
 
             spider.addUrl(url);
-        }*/
 
-        spider.thread(1).run();
+        }
+
+        spider.thread(10).run();
 
     }
 }

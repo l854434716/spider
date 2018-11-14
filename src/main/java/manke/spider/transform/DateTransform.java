@@ -2,6 +2,7 @@ package manke.spider.transform;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.helper.StringUtil;
 
 import java.util.regex.Pattern;
@@ -27,9 +28,9 @@ public class DateTransform {
     }
 
 
-    public   static  long    getDayFirstTimeMills(long  timeMills){
+    public   static  long    getDayFirstTimeMills(long  timeMills,int  offset){
 
-        return   timeMills-(timeMills+EIGHTHOURSMILLS)%MILLSINONEDAY;
+        return   timeMills-(timeMills+EIGHTHOURSMILLS)%MILLSINONEDAY+(offset*MILLSINONEDAY);
     }
 
 
