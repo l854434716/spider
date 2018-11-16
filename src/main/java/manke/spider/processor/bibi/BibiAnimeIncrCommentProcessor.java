@@ -88,7 +88,7 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
                     }
                 }else if (stopIndex==comments.size()-1){//还需要继续爬取下一页
                     page.putField("media_id",media_id);
-                    List<String>  reviewIds=page.getJson().jsonPath("$.result.list[(*)].review_id").all();
+                    List<String>  reviewIds=page.getJson().jsonPath("$.result.list[*].review_id").all();
                     for (String   reviewId:reviewIds){
                         detailCommentUrl=createCommentDetailUrl(media_id,reviewId);
                         page.addTargetRequest(detailCommentUrl);
@@ -144,7 +144,7 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
                     logger.info("url {}  have no increment_data");
                 }else if (stopIndex==comments.size()-1){//还需要继续爬取下一页
                     page.putField("media_id",media_id);
-                    List<String>  reviewIds=page.getJson().jsonPath("$.result.list[(*)].review_id").all();
+                    List<String>  reviewIds=page.getJson().jsonPath("$.result.list[*].review_id").all();
                     for (String   reviewId:reviewIds){
                         detailCommentUrl=createCommentDetailUrl(media_id,reviewId);
                         page.addTargetRequest(detailCommentUrl);
