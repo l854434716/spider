@@ -182,7 +182,7 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
     private   static  final   long   currentTime=System.currentTimeMillis();
     private boolean determineCommentIsNewByCtime(String ctime) {
 
-        return  DateTransform.getDayFirstTimeMills(currentTime,-1)<NumberUtils.toLong(StringUtils.join(ctime,"000"));
+        return  DateTransform.getDayFirstTimeMills(currentTime,-1)<=NumberUtils.toLong(StringUtils.join(ctime,"000"));
     }
 
 
