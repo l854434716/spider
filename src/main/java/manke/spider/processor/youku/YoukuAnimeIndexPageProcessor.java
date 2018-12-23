@@ -29,7 +29,7 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
 
 
     public void process(Page page) {
-
+        logger.info("get_page_data from url {}",page.getUrl().toString());
         //http://list.youku.com/category/sh
         // ow/c_100_s_1_d_2_p_1.html 索引页数据
         if(StringUtils.contains(page.getRequest().getUrl(),"category")){
@@ -215,7 +215,7 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
 
 
     private  void   doPlayPageProcessor(Page  page){
-
+        logger.info("doPlayPageProcessor  url is {}",page.getUrl().toString());
         try {
             String  tagurl=page.getHtml().xpath("//div[@class='title-wrap']/h1/span[1]/a/@href").get();
            if (tagurl==null){

@@ -187,16 +187,17 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
 
 
     private    void    doCommentDetailPage(Page   page){
-        String   commentDetailRaw=
-        page.getHtml().xpath("//div[@class='review-content']/text()").get();
+        List<String>   commentDetailRaw=
+        page.getHtml().xpath("//div[@class='article-holder']/p/text()").all();
 
         String  media_id=getMediaIdFromCommentDetailUrl(page.getRequest().getUrl());
 
         String  review_id=getReviewIdFromCommentDetailUrl(page.getRequest().getUrl());
 
+        String   commentDetail=StringUtils.join(commentDetailRaw,'\n');
         page.putField("media_id",media_id);
         page.putField("review_id",review_id);
-        page.putField("commentdetail",commentDetailRaw);
+        page.putField("commentdetail",commentDetail);
 
     }
     public static void main(String[] args) {
@@ -206,7 +207,7 @@ public class BibiAnimeIncrCommentProcessor extends AbstractBibiAnimeCommentProce
 
         //spider.addUrl("https://bangumi.bilibili.com/review/web_api/long/list?media_id=5997&folded=0&page_size=20&sort=1");
         //spider.addUrl("https://www.bilibili.com/bangumi/media/md102392/review/ld40967");
-        //spider.addUrl("https://bangumi.bilibili.com/review/web_api/long/list?media_id=5997&folded=0&page_size=20&sort=1");
+        //spider.addUrl("https://www.bilibili.com/bangumi/media/md23352/review/ld46766");
         for (String  url:getCommentURls()){
             spider.addUrl(url);
         }
