@@ -5,6 +5,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import manke.spider.model.bibi.BibiConstant;
+import manke.spider.mongo.MongoHelper;
 import manke.spider.pipeline.AbstractMongodbPipeline;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ public class BibiAnimeSessionInfoPipeline extends AbstractMongodbPipeline implem
     private UpdateOptions updateOptions=new UpdateOptions().upsert(true);
 
     //番剧sessionInfo json存放到 resultItems  中的key 名称
-    public  final static  String  bibiSessionInfoJsonStr="bibiSessionInfoJsonStr";
+    public  final static  String  bibiSessionInfoJsonStr="data";
 
     public void process(ResultItems resultItems, Task task) {
 
@@ -38,14 +39,15 @@ public class BibiAnimeSessionInfoPipeline extends AbstractMongodbPipeline implem
 
             try{
                 MongoDatabase mongoDatabase = mongoClient.getDatabase("spider");
-                MongoCollection<Document> collection=mongoDatabase.getCollection("bibi_sessioninfo_animes");
+                MongoCollection<Document> collection=mongoDatabase.getCollection("bibi_sessioninfo_animes_v2");
 
                 Document document=Document.parse(bibiSessionInfoJsonStrData);
-                document.put("_id",document.get(BibiConstant.SEASON_ID));
-                document.remove(BibiConstant.SEASONS);
-                document.remove(BibiConstant.USER_SEASON);
+                document.put("_id", MongoHelper.getDocumentValue(document,"mediaInfo.seasons[0].season_id",Integer.class));
+                document.remove("ver");
+                document.remove("loginInfo");
+                document.remove("userStatus");
                 logger.info("commit {} to queue",document.toJson());
-                collection.replaceOne(Filters.eq("_id",document.get(BibiConstant.SEASON_ID)),document,updateOptions);
+                //collection.replaceOne(Filters.eq("_id",document.get(BibiConstant.SEASON_ID)),document,updateOptions);
                 logger.info("commit data success");
             }catch (Exception e){
                 logger.error("store data error ",e);
