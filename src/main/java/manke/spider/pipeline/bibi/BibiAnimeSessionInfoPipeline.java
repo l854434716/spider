@@ -41,13 +41,32 @@ public class BibiAnimeSessionInfoPipeline extends AbstractMongodbPipeline implem
                 MongoDatabase mongoDatabase = mongoClient.getDatabase("spider");
                 MongoCollection<Document> collection=mongoDatabase.getCollection("bibi_sessioninfo_animes_v2");
 
-                Document document=Document.parse(bibiSessionInfoJsonStrData);
+                Document document=null;
+                try{
+
+                    document=Document.parse(bibiSessionInfoJsonStrData);
+                }catch (Exception  e){
+
+                    logger.error("parse  json_str {}  error  {}",bibiSessionInfoJsonStrData,e);
+                    return ;
+                }
+
+
+
                 document.put("_id", MongoHelper.getDocumentValue(document,"mediaInfo.seasons[0].season_id",Integer.class));
                 document.remove("ver");
                 document.remove("loginInfo");
                 document.remove("userStatus");
+                document.remove("shortReviewInfo");
+                document.remove("longReviewInfo");
                 logger.info("commit {} to queue",document.toJson());
-                //collection.replaceOne(Filters.eq("_id",document.get(BibiConstant.SEASON_ID)),document,updateOptions);
+                try{
+                    collection.replaceOne(Filters.eq("_id",document.get("_id")),document,updateOptions);
+                }catch (Exception  e){
+
+                    logger.error("store  doc  {}  error {}",document.toJson(),e);
+                }
+
                 logger.info("commit data success");
             }catch (Exception e){
                 logger.error("store data error ",e);
