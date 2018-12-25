@@ -14,6 +14,8 @@ import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
+import java.util.ArrayList;
+
 /**
  * Created by luozhi on 2017/5/25.
  *
@@ -51,9 +53,12 @@ public class BibiAnimeSessionInfoPipeline extends AbstractMongodbPipeline implem
                     return ;
                 }
 
-
-
-                document.put("_id", MongoHelper.getDocumentValue(document,"mediaInfo.seasons[0].season_id",Integer.class));
+                ArrayList<Document> seasons=MongoHelper.getDocumentValue(document,"mediaInfo.seasons",ArrayList.class);
+                for(Document  season:seasons){
+                    if (season.getInteger("media_id")==MongoHelper.getDocumentValue(document,"mediaInfo.media_id",Integer.class)){
+                        document.put("_id", season.getInteger("season_id"));
+                    }
+                }
                 document.remove("ver");
                 document.remove("loginInfo");
                 document.remove("userStatus");

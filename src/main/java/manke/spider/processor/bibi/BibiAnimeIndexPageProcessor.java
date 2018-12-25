@@ -123,9 +123,9 @@ public class BibiAnimeIndexPageProcessor extends AbstractPageProcessor {
 
     public static void main(String[] args) {
         Spider.create(new BibiAnimeIndexPageProcessor())
-                //.addUrl("https://bangumi.bilibili.com/media/web_api/search/result?page=0&season_type=1&pagesize=20")
-                //.addUrl("https://bangumi.bilibili.com/media/web_api/search/result?page=0&season_type=4&pagesize=20")
-                .addUrl("https://www.bilibili.com/bangumi/media/md5286")
+                .addUrl("https://bangumi.bilibili.com/media/web_api/search/result?page=0&season_type=1&pagesize=20")
+                .addUrl("https://bangumi.bilibili.com/media/web_api/search/result?page=0&season_type=4&pagesize=20")
+                //.addUrl("https://www.bilibili.com/bangumi/media/md5286")
                 .addPipeline(new BibiAnimeSessionInfoPipeline())
                 .thread(10).run();
     }
