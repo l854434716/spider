@@ -53,12 +53,7 @@ public class BibiAnimeSessionInfoPipeline extends AbstractMongodbPipeline implem
                     return ;
                 }
 
-                ArrayList<Document> seasons=MongoHelper.getDocumentValue(document,"mediaInfo.seasons",ArrayList.class);
-                for(Document  season:seasons){
-                    if (season.getInteger("media_id")==MongoHelper.getDocumentValue(document,"mediaInfo.media_id",Integer.class)){
-                        document.put("_id", season.getInteger("season_id"));
-                    }
-                }
+                document.put("_id", MongoHelper.getDocumentValue(document,"mediaInfo.param.season_id",Integer.class));
                 document.remove("ver");
                 document.remove("loginInfo");
                 document.remove("userStatus");
