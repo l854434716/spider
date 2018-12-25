@@ -79,41 +79,45 @@ public class MongoBibiSeasonJob extends AbstractJob<FindIterable<Document>,Strin
 
             Document document= resultCursor.next();
 
+            document=MongoHelper.getDocumentValue(document,"mediaInfo",Document.class);
+
             allow_download= NumberUtils.toInt(document.getString("allow_download"),0);
 
             results.add(allow_download);
 
-            arealimit=NumberUtils.toInt(document.get("arealimit").toString(),0);
+            arealimit=0;
 
             results.add(arealimit);
-            badge=document.getString("badge");
+            badge=MongoHelper.getDocumentValue(document,"payment.tip",String.class);
+            if (StringUtils.isNotEmpty(badge))
+                badge="付费观看";
             results.add(badge);
-            copyright=document.getString("copyright");
+            copyright=MongoHelper.getDocumentValue(document,"rights.copyright",String.class);
             results.add(copyright);
             coins=NumberUtils.toInt(document.getString("coins"),0);
             results.add(coins);
             cover=document.getString("cover");
             results.add(cover);
-            danmaku_count=NumberUtils.toInt(document.getString("danmaku_count"),0);
+            danmaku_count=MongoHelper.getDocumentValue(document,"stat.danmakus",Integer.class);
             results.add(danmaku_count);
-            favorites=NumberUtils.toInt(document.getString("favorites"),0);
+            favorites=MongoHelper.getDocumentValue(document,"stat.favorites",Integer.class);
             results.add(favorites);
-            is_finish= NumberUtils.toInt(document.getString("is_finish"),0);
+            is_finish= MongoHelper.getDocumentValue(document,"copyright.is_finish",Integer.class);
             results.add(is_finish);
             //
-            score=MongoHelper.getDocumentValue(document,"media.rating.score",Double.class, (double) 0);
+            score=MongoHelper.getDocumentValue(document,"rating.score",Double.class, (double) 0);
 
             results.add(score);
-            score_critic_num=MongoHelper.getDocumentValue(document,"media.rating.count",Integer.class,0);
+            score_critic_num=MongoHelper.getDocumentValue(document,"rating.count",Integer.class,0);
             results.add(score_critic_num);
             title=document.getString("title");
             results.add(title);
             price=MongoHelper.getDocumentValue(document,"payment.price",String.class,"0");
             results.add(price);
-            play_count=NumberUtils.toLong(document.getString("play_count"),0);
+            play_count=MongoHelper.getDocumentValue(document,"stat.views",Integer.class);
             results.add(play_count);
-            pub_time=document.getString("pub_time");
-            results.add(pub_time);
+            pub_time=MongoHelper.getDocumentValue(document,"publish.pub_date",String.class);
+            results.add(pub_time+" 00:00:00");
             bangumi_title=document.getString("bangumi_title");
             results.add(bangumi_title);
             season_title=document.getString("season_title");
@@ -121,13 +125,13 @@ public class MongoBibiSeasonJob extends AbstractJob<FindIterable<Document>,Strin
             webplayurl=document.getString("share_url");
             results.add(webplayurl);
 
-            season_id=NumberUtils.toInt(document.getString("season_id"));
+            season_id=MongoHelper.getDocumentValue(document,"param.season_id",Integer.class);
             results.add(season_id);
             if (!DateTransform.isPub_Time(pub_time)){
 
                 System.out.println(season_id);
             }
-            regionCode=RegionTransform.getRegionCodeByName(document.getString("area"));
+            regionCode=RegionTransform.getRegionCodeByName(MongoHelper.getDocumentValue(document,"area[0].name",String.class));
             results.add(regionCode);
             dataOutput.output(StringUtils.join(results,"$"));
             results.clear();
@@ -142,10 +146,10 @@ public class MongoBibiSeasonJob extends AbstractJob<FindIterable<Document>,Strin
     public  static void  main(String[] args){
         String outPutPath="/tmp/manke/bibi_anime_season/"+ DateFormatUtils.format(new Date(),"yyyy-MM-dd")+"/";
         String fileName="t_bibi_anime_season_info.csv";
-        FileDataOutput fileDataOutput=new FileDataOutput(outPutPath,fileName);
+        FileDataOutput fileDataOutput=new FileDataOutput();
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoBibiSeasonInfoInput mongoBibiSeasonInfoInput=
-                new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes"));
+                new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes_v2"));
         JobFactory
                 .createJob(MongoBibiSeasonJob.class,mongoBibiSeasonInfoInput,fileDataOutput,null).start();
 
