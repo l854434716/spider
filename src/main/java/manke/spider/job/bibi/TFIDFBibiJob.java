@@ -9,6 +9,7 @@ import manke.spider.input.bibi.MongoBibiSeasonInfoInput;
 import manke.spider.job.AbstractJob;
 import manke.spider.job.JobFactory;
 import manke.spider.mongo.MongoClinetSingleton;
+import manke.spider.mongo.MongoHelper;
 import manke.spider.output.FileDataOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -27,20 +28,23 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
 
         MongoCursor<Document> resultCursor=resultIter.batchSize(1000).iterator();
 
-        ArrayList<Document>  raw_actors;
+        String[] actorRoles;
         String  staff=null;
         String  outPutResult=null;
         String  actorName=null;
+        Document document;
+
+        String  raw_actors;
         while(resultCursor.hasNext()){
             outPutResult=null;
-            Document document= resultCursor.next();
+            document= resultCursor.next();
 
-            ArrayList<Object> tags=document.get("tags", ArrayList.class);
+            ArrayList<Object> tags= MongoHelper.getDocumentValue(document,"mediaInfo.style",ArrayList.class);
             String tagName=null;
             for(Object object:tags){
 
                 Document tag= (Document) object;
-                tagName=tag.getString("tag_name");
+                tagName=tag.getString("name");
                 if(StringUtils.isEmpty(tagName)){
                     break;
                 }
@@ -51,13 +55,15 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
             }
 
 
-            raw_actors=document.get("actor",ArrayList.class);
-            for (Document  actor:raw_actors){
-                actorName=actor.getString("actor");
-                if(StringUtils.isEmpty(actorName)){
+            raw_actors=MongoHelper.getDocumentValue(document,"mediaInfo.actors",String.class);
+
+            for (String  actorInfo:StringUtils.splitPreserveAllTokens(raw_actors,'\n')){
+                actorRoles=StringUtils.splitPreserveAllTokens(actorInfo,'：');
+
+                if(actorRoles.length!=2){
                     continue;
                 }
-                actorName=StringUtils.remove(actorName,'\r');
+                actorName=StringUtils.remove(actorRoles[1],'\r');
                 actorName=StringUtils.remove(actorName,'\n');
                 actorName=StringUtils.replaceChars(actorName,'、',',');
                 actorName=StringUtils.replaceChars(actorName,'，',',');
@@ -69,7 +75,7 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
                     outPutResult=actorName;
             }
 //  staff  save
-            staff=StringUtils.remove(document.getString("staff"),'\r');
+            staff=StringUtils.remove(MongoHelper.getDocumentValue(document,"mediaInfo.staff",String.class),'\r');
             staff=StringUtils.replaceChars(staff,'\n','$');
             staff=StringUtils.replaceChars(staff,':','$');
             staff=StringUtils.replaceChars(staff,'：','$');
@@ -99,7 +105,7 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
             }
 
             if (StringUtils.isNotEmpty(outPutResult)){
-                outPutResult=StringUtils.join(document.getString("season_id"),"|",outPutResult);
+                outPutResult=StringUtils.join(document.getInteger("_id"),"|",outPutResult);
                 dataOutput.output(outPutResult);
 
             }
@@ -115,7 +121,7 @@ public class TFIDFBibiJob extends AbstractJob<FindIterable<Document>,String> {
         FileDataOutput fileDataOutput=new FileDataOutput("/tmp/","tfidf.txt");
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoBibiSeasonInfoInput mongoBibiSeasonInfoInput=
-                new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes"));
+                new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes_v2"));
         JobFactory
                 .createJob(TFIDFBibiJob.class,mongoBibiSeasonInfoInput,fileDataOutput,null).start();
 
