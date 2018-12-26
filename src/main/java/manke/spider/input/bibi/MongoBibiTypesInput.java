@@ -21,7 +21,7 @@ public class MongoBibiTypesInput implements DataInput<FindIterable<Document>> {
 
     @Override
     public FindIterable<Document> input() {
-        return collection.find().projection(Projections.fields(Projections.include("tags","season_id"),Projections.excludeId()));
+        return collection.find().projection(Projections.fields(Projections.include("mediaInfo")));
     }
 
     @Override

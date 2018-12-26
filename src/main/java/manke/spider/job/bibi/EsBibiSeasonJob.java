@@ -38,17 +38,20 @@ public class EsBibiSeasonJob extends AbstractJob<FindIterable<Document>,AnimeNam
 
 
         AnimeNameStaffModel  animeNameStaffModel;
-        ArrayList<Document>  raw_actors;
+        String  raw_actors;
         ArrayList<AnimeActorModel>  actors;
 
         AnimeActorModel animeActorModel;
+        Document document;
+        String[] actorRoles;
         while(resultCursor.hasNext()){
 
-            Document document= resultCursor.next();
+            document= resultCursor.next();
             animeNameStaffModel=new AnimeNameStaffModel();
 
-            animeNameStaffModel.setSeason_id(StringUtils.join(document.getString("season_id"),"BI"));
+            animeNameStaffModel.setSeason_id(StringUtils.join(document.getInteger("_id"),"BI"));
 
+            document=document.get("mediaInfo",Document.class);
             animeNameStaffModel.setTitle(document.getString("title"));
 
             animeNameStaffModel
@@ -56,13 +59,17 @@ public class EsBibiSeasonJob extends AbstractJob<FindIterable<Document>,AnimeNam
 
 
 
-            raw_actors=document.get("actor",ArrayList.class);
+            raw_actors=document.getString("actors");
             actors=Lists.newArrayList();
-            for (Document  actor:raw_actors){
+            for (String  actorInfo:StringUtils.splitPreserveAllTokens(raw_actors,'\n')){
                 animeActorModel= new AnimeActorModel();
-                animeActorModel.setActorName(actor.getString("actor"));
-                animeActorModel.setRole(actor.getString("role"));
-                actors.add(animeActorModel);
+                actorRoles=StringUtils.splitPreserveAllTokens(actorInfo,'：');
+                if (actorRoles.length==2){
+                    animeActorModel.setActorName(actorRoles[1]);
+                    animeActorModel.setRole(actorRoles[0]);
+                    actors.add(animeActorModel);
+                }
+
             }
 
             animeNameStaffModel.setActors(actors);
@@ -89,7 +96,7 @@ public class EsBibiSeasonJob extends AbstractJob<FindIterable<Document>,AnimeNam
         DataOutput<AnimeNameStaffModel>  animeNameStaffESOutput=new AnimeNameStaffESOutput(restClientBuilder);
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoBibiSeasonInfoInput mongoBibiSeasonInfoInput=
-                new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes"));
+                new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes_v2"));
         JobFactory
                 .createJob(EsBibiSeasonJob.class,mongoBibiSeasonInfoInput,animeNameStaffESOutput,null).start();
 

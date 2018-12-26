@@ -105,7 +105,10 @@ public class MongoBibiSeasonJob extends AbstractJob<FindIterable<Document>,Strin
             is_finish= MongoHelper.getDocumentValue(document,"copyright.is_finish",Integer.class);
             results.add(is_finish);
             //
-            score=MongoHelper.getDocumentValue(document,"rating.score",Double.class, (double) 0);
+            if (MongoHelper.getDocumentValue(document,"rating.score",Object.class)==null)
+                score=0;
+            else
+                score=NumberUtils.toDouble(MongoHelper.getDocumentValue(document,"rating.score",Object.class).toString(),0);
 
             results.add(score);
             score_critic_num=MongoHelper.getDocumentValue(document,"rating.count",Integer.class,0);
@@ -117,7 +120,8 @@ public class MongoBibiSeasonJob extends AbstractJob<FindIterable<Document>,Strin
             play_count=MongoHelper.getDocumentValue(document,"stat.views",Integer.class);
             results.add(play_count);
             pub_time=MongoHelper.getDocumentValue(document,"publish.pub_date",String.class);
-            results.add(pub_time+" 00:00:00");
+            pub_time=StringUtils.join(pub_time," 00:00:00");
+            results.add(pub_time);
             bangumi_title=document.getString("bangumi_title");
             results.add(bangumi_title);
             season_title=document.getString("season_title");
@@ -146,7 +150,7 @@ public class MongoBibiSeasonJob extends AbstractJob<FindIterable<Document>,Strin
     public  static void  main(String[] args){
         String outPutPath="/tmp/manke/bibi_anime_season/"+ DateFormatUtils.format(new Date(),"yyyy-MM-dd")+"/";
         String fileName="t_bibi_anime_season_info.csv";
-        FileDataOutput fileDataOutput=new FileDataOutput();
+        FileDataOutput fileDataOutput=new FileDataOutput(outPutPath,fileName);
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoBibiSeasonInfoInput mongoBibiSeasonInfoInput=
                 new MongoBibiSeasonInfoInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes_v2"));

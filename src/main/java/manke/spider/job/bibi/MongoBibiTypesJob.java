@@ -7,6 +7,7 @@ import manke.spider.input.bibi.MongoBibiTypesInput;
 import manke.spider.job.AbstractJob;
 import manke.spider.job.JobFactory;
 import manke.spider.mongo.MongoClinetSingleton;
+import manke.spider.mongo.MongoHelper;
 import manke.spider.output.FileDataOutput;
 import manke.spider.transform.AnimeTypeTransform;
 import org.apache.commons.lang3.StringUtils;
@@ -32,17 +33,16 @@ public class MongoBibiTypesJob extends AbstractJob<FindIterable<Document>,String
 
             Document document= resultCursor.next();
 
-            ArrayList<Object> tags=document.get("tags", ArrayList.class);
+            ArrayList<Object> tags= MongoHelper.getDocumentValue(document,"mediaInfo.style",ArrayList.class);
             String tagName=null;
-            String role=null;
             for(Object object:tags){
 
                 Document tag= (Document) object;
-                tagName=tag.getString("tag_name");
+                tagName=tag.getString("name");
                 if(StringUtils.isEmpty(tagName)){
                     break;
                 }
-                outPutResult=StringUtils.join(document.getString("season_id")+","+ AnimeTypeTransform.getTypeCodeByName(tagName));
+                outPutResult=StringUtils.join(document.getInteger("_id")+","+ AnimeTypeTransform.getTypeCodeByName(tagName));
                 dataOutput.output(outPutResult);
             }
         }
@@ -59,7 +59,7 @@ public class MongoBibiTypesJob extends AbstractJob<FindIterable<Document>,String
         FileDataOutput fileDataOutput=new FileDataOutput(path,"result.csv");
         MongoClient mongoClient= MongoClinetSingleton.getMongoClinetInstance();
         MongoBibiTypesInput mongoBibiTypesInput=
-                new MongoBibiTypesInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes"));
+                new MongoBibiTypesInput(mongoClient.getDatabase("spider").getCollection("bibi_sessioninfo_animes_v2"));
         JobFactory
                 .createJob(MongoBibiTypesJob.class,mongoBibiTypesInput,fileDataOutput,null).start();
 
