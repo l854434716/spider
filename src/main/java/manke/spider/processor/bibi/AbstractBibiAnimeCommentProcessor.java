@@ -36,10 +36,10 @@ public abstract   class AbstractBibiAnimeCommentProcessor  extends AbstractPageP
     public  static   List<String>  getCommentURls(){
 
         MongoCollection<Document> collection=mongoClient
-                .getDatabase("spider").getCollection("bibi_sessioninfo_animes");
+                .getDatabase("spider").getCollection("bibi_sessioninfo_animes_v2");
 
         FindIterable<Document>  documents= collection
-                .find().projection(Projections.fields(Projections.include("media")));
+                .find().projection(Projections.fields(Projections.include("mediaInfo")));
 
 
         MongoCursor<Document> resultCursor=documents.batchSize(1000).iterator();
@@ -49,8 +49,8 @@ public abstract   class AbstractBibiAnimeCommentProcessor  extends AbstractPageP
         while (resultCursor.hasNext()){
 
             Document document= resultCursor.next();
-            if (MongoHelper.getDocumentValue(document,"media.media_id",Integer.class)!=null){
-                urls.add(StringUtils.join(commentURLPrefix,MongoHelper.getDocumentValue(document,"media.media_id",Integer.class), commentURLSuffix));
+            if (MongoHelper.getDocumentValue(document,"mediaInfo.media_id",Integer.class)!=null){
+                urls.add(StringUtils.join(commentURLPrefix,MongoHelper.getDocumentValue(document,"mediaInfo.media_id",Integer.class), commentURLSuffix));
             }else{
                 logger.error("data {} have no  media info",document.toJson());
             }
