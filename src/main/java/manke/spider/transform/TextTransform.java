@@ -73,4 +73,20 @@ public class TextTransform {
         return  StringUtils.substringAfter(str,"：");
 
     }
+
+    /**
+     * unicode转字符串
+     *
+     * @param unicode
+     * @return
+     */
+    public static String unicodeToString(String unicode) {
+        StringBuffer sb = new StringBuffer();
+        String[] hex = unicode.split("\\\\u");
+        for (int i = 1; i < hex.length; i++) {
+            int index = Integer.parseInt(hex[i], 16);
+            sb.append((char) index);
+        }
+        return sb.toString();
+    }
 }

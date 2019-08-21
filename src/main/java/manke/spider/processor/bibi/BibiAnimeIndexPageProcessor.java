@@ -8,12 +8,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
-import us.codecraft.webmagic.processor.PageProcessor;
-import us.codecraft.webmagic.selector.Selectable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,11 +44,11 @@ public class BibiAnimeIndexPageProcessor extends AbstractPageProcessor {
 
             try {
                 //数据转换出错或者数据来源url 是其他页面
-               Element body= page.getHtml().getDocument().body();
+                Element body = page.getHtml().getDocument().body();
 
-               Elements bodyElements = body.children();
+                Elements bodyElements = body.children();
 
-               String  data=null;
+                String data = null;
                 for (Element  element:bodyElements){
                     if (StringUtils.contains(element.html(),"__INITIAL_STATE__")){
                         //获取页面番剧详情数据
