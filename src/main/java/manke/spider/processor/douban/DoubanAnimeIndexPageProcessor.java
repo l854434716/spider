@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import manke.spider.model.douban.DoubanConstant;
 import manke.spider.model.douban.SeasonRole;
+import manke.spider.pipeline.douban.DoubanAnimeSessionInfoPipeline;
 import manke.spider.processor.AbstractPageProcessor;
 import manke.spider.redis.LettuceRedisClient;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +18,7 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.selector.Selectable;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,8 +44,6 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
     private final String WORKSREDISKEY = "douban:works";
     private final String indexPagePreUrl = "https://movie.douban.com/j/new_search_subjects?sort=U&range=0,10&tags=%E5%8A%A8%E6%BC%AB&start=";
 
-    private int indexPageStart = 20;
-
     private Map<String, Set<SeasonRole>> celebrityWorksCache = Maps.newConcurrentMap();
 
     LettuceRedisClient redisClient;
@@ -56,13 +56,23 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
 
 
     public void process(Page page) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        String currentUrl = page.getRequest().getUrl();
+        if (page.getStatusCode() != 200) {
+
+            if (page.getStatusCode() == 404) {
+                page.setSkip(true);
+                logger.info("页面不存在 {}", currentUrl);
+                return;
+            } else {
+                logger.info("页面一时不可用，继续爬取 {}", currentUrl);
+                page.addTargetRequest(currentUrl);
+                page.setSkip(true);
+                return;
+            }
+
         }
 
-        String currentUrl = page.getRequest().getUrl();
+
         logger.info("开始处理url {}", currentUrl);
         //索引页数据
         if (StringUtils.contains(currentUrl, "new_search_subjects")) {
@@ -104,22 +114,28 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
         try {
 
             season_urls = page.getJson().jsonPath("$.data[*].url").nodes();
-
+            int currentPage = Integer.parseInt(StringUtils.splitByWholeSeparator(currentUrl, "start=")[1]);
+            int nextPage = currentPage + 20;
             if (season_urls == null || season_urls.size() == 0) {
-                logger.info("spider  to  last page...");
+                if (currentPage <= 9300) {
+                    page.addTargetRequest(currentUrl);
+                    logger.info("非正常终止继续爬取 page = {}", nextPage);
+                    page.setSkip(true);
+                } else {
+                    logger.info("spider  to  last page... url {} content is {}", currentUrl, JSON.toJSONString(page));
+                }
+
                 return;
             }
 
             for (Selectable url : season_urls) {
-
                 logger.info("url is {}", url.get());
-                //page.addTargetRequest(url.get());
+                page.addTargetRequest(url.get());
             }
             //获取下一页url 继续爬取
-
-            String nextPageUrl = StringUtils.join(indexPagePreUrl, indexPageStart += 20);
+            String nextPageUrl = StringUtils.join(indexPagePreUrl, nextPage);
             page.addTargetRequest(nextPageUrl);
-            logger.info("next page url is ", nextPageUrl);
+            logger.info("next page url is {}", nextPageUrl);
 
         } catch (Exception e) {
             logger.error("can not  process url {} json data", page.getRequest().getUrl(), e);
@@ -467,22 +483,30 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
     @Override
     public Site getSite() {
         Site site = super.getSite();
-
+        Set<Integer> acceptStatCode = new HashSet<>();
+        for (int i = 0; i <= 700; i++) {
+            acceptStatCode.add(i);
+        }
+        //防止豆瓣给爬虫喂毒药
+        site.setAcceptStatCode(acceptStatCode);
+        site.setSleepTime(1500);
         site.setDisableCookieManagement(true);
         return site;
     }
 
     public static void main(String[] args) {
 
-        LettuceRedisClient redisClient = new LettuceRedisClient("",6379);
-        Spider.create(new DoubanAnimeIndexPageProcessor(redisClient))
-                //.addUrl("https://movie.douban.com/j/new_search_subjects?sort=U&range=0,10&tags=%E5%8A%A8%E6%BC%AB&start=0")
-                .addUrl("https://movie.douban.com/subject/26339248/")
+        LettuceRedisClient redisClient = new LettuceRedisClient("192.168.31.233", 6379);
+        redisClient.init();
+        Spider.create(new DoubanAnimeIndexPageProcessor(redisClient)).setExitWhenComplete(false)
+                .setScheduler(new LinkedBlockScheduler())
+                .addUrl("https://movie.douban.com/j/new_search_subjects?sort=U&range=0,10&tags=%E5%8A%A8%E6%BC%AB&start=9200")
+                //.addUrl("https://movie.douban.com/subject/26339248/")
                 //.addUrl("https://movie.douban.com/subject/26339248/celebrities")
                 //.addUrl("https://movie.douban.com/celebrity/1054439/")
                 //.addUrl("https://movie.douban.com/celebrity/1348459/movies?sortby=vote&format=text")
-                //.addPipeline(new QqAnimeSessionInfoPipeline())
-                .thread(30).run();
+                .addPipeline(new DoubanAnimeSessionInfoPipeline())
+                .thread(1).run();
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override

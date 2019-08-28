@@ -1,5 +1,6 @@
 package manke.spider.pipeline.douban;
 
+import com.alibaba.fastjson.JSON;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -67,10 +68,8 @@ public class DoubanAnimeSessionInfoPipeline extends AbstractMongodbPipeline impl
 
         if (StringUtils.equals(resultItems.get(DoubanConstant.BIZKEY), DoubanConstant.WORKS)) {
 
-            Document document = new Document();
-            document.putAll(result);
+            Document document = Document.parse(JSON.toJSONString(result));
             document.put("_id", document.getString("celebrity_id"));
-
             save(document, "spider", "douban_celebrity_works");
 
         }
