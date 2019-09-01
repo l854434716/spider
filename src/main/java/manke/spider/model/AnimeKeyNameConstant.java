@@ -7,6 +7,12 @@ package manke.spider.model;
  */
 public class AnimeKeyNameConstant {
 
+    //采集时间
+    public final static String COLLECT_TIME = "collect_time";
+
+    //采集时间
+    public final static String COLLECT_DATE = "collect_date";
+
 
     //番剧web 播放 url
     public  final  static  String  WEBPLAYURL="webplayurl";

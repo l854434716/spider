@@ -8,6 +8,7 @@ import com.mongodb.client.model.UpdateOptions;
 import manke.spider.model.douban.DoubanConstant;
 import manke.spider.pipeline.AbstractMongodbPipeline;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.DateUtils;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
+import java.util.Date;
 import java.util.Map;
 
 public class DoubanAnimeSessionInfoPipeline extends AbstractMongodbPipeline implements Pipeline {
@@ -39,6 +41,10 @@ public class DoubanAnimeSessionInfoPipeline extends AbstractMongodbPipeline impl
             Document document = new Document();
             document.putAll(result);
             document.put("_id", document.getString("season_id"));
+            document.put(DoubanConstant.COLLECT_TIME, System.currentTimeMillis());
+            document.put(DoubanConstant.COLLECT_DATE, DateUtils.formatDate(new Date(), "yyyy-MM-dd"));
+
+
 
             save(document, "spider", "douban_sessioninfo_animes");
 
@@ -49,7 +55,8 @@ public class DoubanAnimeSessionInfoPipeline extends AbstractMongodbPipeline impl
             Document document = new Document();
             document.putAll(result);
             document.put("_id", document.getString("season_id"));
-
+            document.put(DoubanConstant.COLLECT_TIME, System.currentTimeMillis());
+            document.put(DoubanConstant.COLLECT_DATE, DateUtils.formatDate(new Date(), "yyyy-MM-dd"));
             save(document, "spider", "douban_session_celebrities");
 
         }
@@ -60,7 +67,8 @@ public class DoubanAnimeSessionInfoPipeline extends AbstractMongodbPipeline impl
             Document document = new Document();
             document.putAll(result);
             document.put("_id", document.getString("celebrity_id"));
-
+            document.put(DoubanConstant.COLLECT_TIME, System.currentTimeMillis());
+            document.put(DoubanConstant.COLLECT_DATE, DateUtils.formatDate(new Date(), "yyyy-MM-dd"));
             save(document, "spider", "douban_celebrity_info");
 
         }
@@ -70,6 +78,8 @@ public class DoubanAnimeSessionInfoPipeline extends AbstractMongodbPipeline impl
 
             Document document = Document.parse(JSON.toJSONString(result));
             document.put("_id", document.getString("celebrity_id"));
+            document.put(DoubanConstant.COLLECT_TIME, System.currentTimeMillis());
+            document.put(DoubanConstant.COLLECT_DATE, DateUtils.formatDate(new Date(), "yyyy-MM-dd"));
             save(document, "spider", "douban_celebrity_works");
 
         }
@@ -90,6 +100,10 @@ public class DoubanAnimeSessionInfoPipeline extends AbstractMongodbPipeline impl
             logger.error("store data error ", e);
 
         }
+    }
+
+    public static void main(String[] args) {
+        System.out.println();
     }
 
 }

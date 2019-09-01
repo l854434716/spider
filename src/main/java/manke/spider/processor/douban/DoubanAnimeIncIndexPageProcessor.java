@@ -26,31 +26,26 @@ import java.util.Set;
 
 /**
  * Created by luozhi on 2017/5/21.
- * 抓取全量的番剧数据
- * 从 3种url 获取 信息  1.https://movie.douban.com/j/new_search_subjects?sort=U&range=0,10&tags=%E5%8A%A8%E6%BC%AB&start=0  番剧集
+ * 抓取增量的番剧数据
+ * 从 3种url 获取 信息  1.https://movie.douban.com/j/new_search_subjects?sort=R&range=0,10&tags=%E5%8A%A8%E6%BC%AB&start=0  番剧集
  * 2.https://movie.douban.com/subject/1782004  番剧详细信息
  * 1782004 表示番剧ID
  */
-public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
-    Logger logger = LoggerFactory.getLogger(DoubanAnimeIndexPageProcessor.class);
+public class DoubanAnimeIncIndexPageProcessor extends AbstractPageProcessor {
+    Logger logger = LoggerFactory.getLogger(DoubanAnimeIncIndexPageProcessor.class);
 
-    /**
-     * 存放已经爬取过职员信息的职员id集合的redis key
-     */
-    private final String CELEBRITYINFOREDISKEY = "douban:celebrites";
-    /**
-     * 存放已经爬取过作品信息的职员id集合的redis key
-     */
-    private final String WORKSREDISKEY = "douban:works";
-    private final String indexPagePreUrl = "https://movie.douban.com/j/new_search_subjects?sort=U&range=0,10&tags=%E5%8A%A8%E6%BC%AB&start=";
+
+    private final String indexPagePreUrl = "https://movie.douban.com/j/new_search_subjects?sort=R&range=0,10&tags=%E5%8A%A8%E6%BC%AB&start=";
+
+    private final String SEASONURLREDISKEY = "douban:season_urls";
 
     private Map<String, Set<SeasonRole>> celebrityWorksCache = Maps.newConcurrentMap();
 
     LettuceRedisClient redisClient;
 
-    public DoubanAnimeIndexPageProcessor(LettuceRedisClient redisClient) {
+    public DoubanAnimeIncIndexPageProcessor(LettuceRedisClient redisClient) {
 
-        this.redisClient= redisClient;
+        this.redisClient = redisClient;
 
     }
 
@@ -71,7 +66,6 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
             }
 
         }
-
 
         logger.info("开始处理url {}", currentUrl);
         //索引页数据
@@ -116,7 +110,7 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
             season_urls = page.getJson().jsonPath("$.data[*].url").nodes();
             int currentPage = Integer.parseInt(StringUtils.splitByWholeSeparator(currentUrl, "start=")[1]);
             int nextPage = currentPage + 20;
-            if (season_urls == null || season_urls.size() == 0) {
+            if (season_urls == null || season_urls.size() == 0 || nextPage >= 200) {
 
                 page.setSkip(true);
                 logger.info("spider  to  last page... url {} content is {}", currentUrl, JSON.toJSONString(page));
@@ -126,6 +120,11 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
 
             for (Selectable url : season_urls) {
                 logger.info("url is {}", url.get());
+                if (redisClient.sismember(SEASONURLREDISKEY, url.get())) {
+                    logger.info("番剧已爬取过停止爬取, url {}", url.get());
+                    page.setSkip(true);
+                    return;
+                }
                 page.addTargetRequest(url.get());
             }
             //获取下一页url 继续爬取
@@ -257,8 +256,7 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
 
         logger.info("解析番剧详细页结果 ", JSON.toJSONString(result));
         page.putField("result", result);
-
-        logger.info(page.getRequest().getUrl());
+        redisClient.sadd(SEASONURLREDISKEY, currentUrl);
         page.addTargetRequest(page.getRequest().getUrl() + "celebrities");
     }
 
@@ -305,13 +303,8 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
                 celebrity.put("name", name);
                 celebrity.put("role", role);
                 celebrities.add(celebrity);
-                if (redisClient.sismember(CELEBRITYINFOREDISKEY, celebrity_id)
-                        && redisClient.sismember(WORKSREDISKEY, celebrity_id)) {
-                    logger.info("职员id {} 职员相关信息已爬取完毕，不需要爬取", celebrity_id);
-                }else{
-                    logger.info("添加爬取职员信息url {} ", li.xpath("//a[@class='name']/@href").get());
-                    page.addTargetRequest(li.xpath("//a[@class='name']/@href").get());
-                }
+                logger.info("添加爬取职员信息url {} ", li.xpath("//a[@class='name']/@href").get());
+                page.addTargetRequest(li.xpath("//a[@class='name']/@href").get());
 
             }
             logger.info("番剧id {} title {} 内容为 {}", season_id, title, JSON.toJSONString(celebrities));
@@ -389,17 +382,12 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
 
         logger.info("职员id{} 详细信息为 {}", celebrity_id, JSON.toJSONString(result));
         page.putField("result", result);
-        redisClient.sadd(CELEBRITYINFOREDISKEY, celebrity_id);
 
-        if (redisClient.sismember(WORKSREDISKEY, celebrity_id)) {
-            logger.info("职员id {} 作品集已爬取完成无需重复爬取",celebrity_id);
-        }else{
-            String workListUrl = currentUrl + "movies?sortby=vote&format=text";
+        String workListUrl = currentUrl + "movies?sortby=vote&format=text";
 
-            page.addTargetRequest(workListUrl);
+        page.addTargetRequest(workListUrl);
 
-            logger.info("添加职员id {} 作品集 url {} ", celebrity_id, workListUrl);
-        }
+        logger.info("添加职员id {} 作品集 url {} ", celebrity_id, workListUrl);
 
     }
 
@@ -428,13 +416,6 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
             seasonRoles.add(seasonRole);
         }
 
-        if (redisClient.sismember(WORKSREDISKEY, celebrity_id)) {
-            //爬过了
-            page.setSkip(true);
-            logger.info("职员作品集结果已比其他线程处理 职员id {}", celebrity_id);
-            return;
-        }
-
         celebrityWorksCache.putIfAbsent(celebrity_id, seasonRoles);
 
         cacheSr = celebrityWorksCache.get(celebrity_id);
@@ -454,7 +435,6 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
         String nextUrl = page.getHtml().xpath("//span[@class='next']/a/@href").get();
         if (StringUtils.isEmpty(nextUrl)) {
             logger.info("获取职员详细作品集已到最后一页");
-            redisClient.sadd(WORKSREDISKEY, celebrity_id);
             result.put("celebrity_id", celebrity_id);
             //该值如果为空说明其他线程以处理完
             result.put("seasonRoles", celebrityWorksCache.get(celebrity_id));
@@ -494,9 +474,9 @@ public class DoubanAnimeIndexPageProcessor extends AbstractPageProcessor {
 
         LettuceRedisClient redisClient = new LettuceRedisClient("192.168.31.233", 6379);
         redisClient.init();
-        Spider.create(new DoubanAnimeIndexPageProcessor(redisClient)).setExitWhenComplete(false)
+        Spider.create(new DoubanAnimeIncIndexPageProcessor(redisClient)).setExitWhenComplete(false)
                 .setScheduler(new LinkedBlockScheduler())
-                .addUrl("https://movie.douban.com/j/new_search_subjects?sort=R&range=0,10&tags=%E5%8A%A8%E6%BC%AB&start=9000")
+                .addUrl("https://movie.douban.com/j/new_search_subjects?sort=R&range=0,10&tags=%E5%8A%A8%E6%BC%AB&start=0")
                 //.addUrl("https://movie.douban.com/subject/26339248/")
                 //.addUrl("https://movie.douban.com/subject/26339248/celebrities")
                 //.addUrl("https://movie.douban.com/celebrity/1054439/")

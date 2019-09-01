@@ -1,6 +1,8 @@
 package manke.spider.model.douban;
 
-public class DoubanConstant {
+import manke.spider.model.AnimeKeyNameConstant;
+
+public class DoubanConstant extends AnimeKeyNameConstant {
 
     public final static String BIZKEY = "BIZKEY";
 
