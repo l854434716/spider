@@ -1,8 +1,6 @@
 package manke.spider.processor.qq;
 
 import manke.spider.model.qq.QqConstant;
-import manke.spider.pipeline.bibi.BibiAnimeIndexPipeline;
-import manke.spider.pipeline.bibi.BibiAnimeSessionInfoPipeline;
 import manke.spider.pipeline.qq.QqAnimeSessionInfoPipeline;
 import manke.spider.processor.AbstractPageProcessor;
 import org.apache.commons.collections.map.HashedMap;
@@ -10,12 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
-import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.selector.Selectable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +28,7 @@ public class QqAnimeIndexPageProcessor extends AbstractPageProcessor {
     //缓存从番剧list页面爬取下来的番剧信息，供保存番剧详情信息的pipeline使用  k 为番剧ID v 为番剧属性和值
     private  final  static  Map<String,Map<String,String>>seasonCache= new ConcurrentHashMap<>();
 
-    //番剧详情信息url 前缀
+    //番剧详情json信息url 前缀
     private  final String  preUrlDetailSeason="http://node.video.qq.com/x/api/float_vinfo2?cid=";
 
 
@@ -82,14 +77,14 @@ public class QqAnimeIndexPageProcessor extends AbstractPageProcessor {
                         season_info_kv.put(QqConstant.COVER,li.xpath("a/img/@src").get());
                         season_info_kv.put(QqConstant.UPDATE_INFO,li.xpath("a/div/span/text()").get());
                         season_info_kv.put(QqConstant.MARK_V,li.xpath("a/i").get()==null?"0":"1");
-                        season_info_kv.put(QqConstant.SCORE,li.xpath("//em[@class='score_l']/text()").get()+li.xpath("//em[@class='score_s']/text()").get());
                         season_info_kv.put(QqConstant.PLAY_COUNT, li.xpath("//span[@class='num']/text()").get());
 
                         seasonCache.put(season_info_kv.get(QqConstant.SEASON_ID),season_info_kv);
                         logger.info("put  {}  {} to seasonCache ",season_info_kv.get(QqConstant.SEASON_ID),season_info_kv);
 
-                        //抓取番剧详情信息
-                        page.addTargetRequest(preUrlDetailSeason+li.xpath("a/@data-float").get());
+                        //抓取番剧评分
+
+                        page.addTargetRequest(StringUtils.join("https://v.qq.com/detail/k/", li.xpath("a/@data-float").get(), ".html"));
 
                     }
 
@@ -110,6 +105,19 @@ public class QqAnimeIndexPageProcessor extends AbstractPageProcessor {
                 logger.error("can not  process url {} json data",page.getRequest().getUrl(),e);
             }
 
+
+        }
+
+        //https://v.qq.com/detail/k/p0pcfbdk318ry3m.html
+        if (StringUtils.contains(page.getRequest().getUrl(), "/detail/k/")) {
+
+            String seasonId = StringUtils.substringBetween(page.getRequest().getUrl(), "https://v.qq.com/detail/k/", ".html");
+            String score = page.getHtml().xpath("//div[@class='score_v']/span[@class='score']/text()").get();
+
+            Map<String, String> season_info_kv = seasonCache.get(seasonId);
+            season_info_kv.put(QqConstant.SCORE, score);
+            //爬取详细信息
+            page.addTargetRequest(preUrlDetailSeason + seasonId);
 
         }
 

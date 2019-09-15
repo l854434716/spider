@@ -474,7 +474,7 @@ public class DoubanAnimeIncIndexPageProcessor extends AbstractPageProcessor {
 
         LettuceRedisClient redisClient = new LettuceRedisClient("192.168.31.233", 6379);
         redisClient.init();
-        Spider.create(new DoubanAnimeIncIndexPageProcessor(redisClient)).setExitWhenComplete(false)
+        Spider.create(new DoubanAnimeIncIndexPageProcessor(redisClient))
                 .setScheduler(new LinkedBlockScheduler())
                 .addUrl("https://movie.douban.com/j/new_search_subjects?sort=R&range=0,10&tags=%E5%8A%A8%E6%BC%AB&start=0")
                 //.addUrl("https://movie.douban.com/subject/26339248/")
