@@ -1,21 +1,19 @@
 package manke.spider.processor.youku;
+
 import manke.spider.pipeline.youku.YoukuAnimeSessionInfoPipeline;
 import manke.spider.processor.AbstractPageProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
-import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.selector.Selectable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import  static  manke.spider.model.youku.YoukuConstant.*;
+import static manke.spider.model.youku.YoukuConstant.*;
 /**
  * Created by luozhi on 2017/5/21.
  *  抓取全量的番剧数据
@@ -30,8 +28,7 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
 
     public void process(Page page) {
         logger.info("get_page_data from url {}",page.getUrl().toString());
-        //http://list.youku.com/category/sh
-        // ow/c_100_s_1_d_2_p_1.html 索引页数据
+        //http://list.youku.com/category/show/c_100_s_1_d_2_p_1.html 索引页数据
         if(StringUtils.contains(page.getRequest().getUrl(),"category")){
             doIndexPageProcessor(page);
         }else if (StringUtils.contains(page.getRequest().getUrl(),"list")){
@@ -140,20 +137,11 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
             List<String> types=_li.xpath("a/text()").all();
             sesaon_info_kv.put(TYPES,StringUtils.join(types,"/"));
 
-            _li=detail_base_li_selectables.get(9); //总播放
-            sesaon_info_kv.put(PLAY_COUNT,_li.xpath("li/text()").get());
-
-            _li=detail_base_li_selectables.get(10); //评论数
-            sesaon_info_kv.put(COMMENT_NUM,_li.xpath("li/text()").get());
-
-            _li=detail_base_li_selectables.get(11); //顶
-            sesaon_info_kv.put(THUMBS_UP_NUM,_li.xpath("li/text()").get());
-
-            _li=detail_base_li_selectables.get(12); //配音
+            _li = detail_base_li_selectables.get(9); //配音
             List<String> dubbeds=_li.xpath("a/text()").all();
             sesaon_info_kv.put(DUBBEDS,StringUtils.join(dubbeds,"/"));
 
-            _li=detail_base_li_selectables.get(13); //描述
+            _li = detail_base_li_selectables.get(10); //描述
             sesaon_info_kv.put(BRIEF,_li.xpath("span[@class='intro-more hide']/text()").get());
 
         }else {
@@ -189,20 +177,11 @@ public class YoukuAnimeIndexPageProcessor extends AbstractPageProcessor {
             List<String> types=_li.xpath("a/text()").all();
             sesaon_info_kv.put(TYPES,StringUtils.join(types,"/"));
 
-            _li=detail_base_li_selectables.get(10); //总播放
-            sesaon_info_kv.put(PLAY_COUNT,_li.xpath("li/text()").get());
-
-            _li=detail_base_li_selectables.get(11); //评论数
-            sesaon_info_kv.put(COMMENT_NUM,_li.xpath("li/text()").get());
-
-            _li=detail_base_li_selectables.get(12); //顶
-            sesaon_info_kv.put(THUMBS_UP_NUM,_li.xpath("li/text()").get());
-
-            _li=detail_base_li_selectables.get(13); //配音
+            _li = detail_base_li_selectables.get(10); //配音
             List<String> dubbeds=_li.xpath("a/text()").all();
             sesaon_info_kv.put(DUBBEDS,StringUtils.join(dubbeds,"/"));
 
-            _li=detail_base_li_selectables.get(14); //描述
+            _li = detail_base_li_selectables.get(11); //描述
             sesaon_info_kv.put(BRIEF,_li.xpath("span[@class='intro-more hide']/text()").get());
 
         }
